@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="eOkruh.MainPage"
+             xmlns:viewmodels="clr-namespace:eOkruh.Presentation.ViewModels"
+             x:DataType="viewmodels:MainViewModel">
+
+    <ScrollView>
+        <Grid RowDefinitions="10*, 2*">
+            <VerticalStackLayout
+                Padding="30,0"
+                Spacing="25">
+                <HorizontalStackLayout Spacing="0">
+                    <Label Text="є" FontSize="Large" FontFamily="OpenSans-Semibold"
+                       TextColor="{StaticResource Interactables}"/>
+                    <Label Text="Округ" FontSize="Large" FontFamily="OpenSans-Semibold" />
+                </HorizontalStackLayout>
+                <!-- Login entry -->
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Введіть логін:"
+                       FontSize="Medium" />
+                    <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                        <Entry Margin="0" FontSize="Medium" 
+                           Text="{Binding Login}" 
+                           Placeholder="Електронна пошта або номер телефону"/>
+                    </Frame>
+                </VerticalStackLayout>
+                <!-- Password entry -->
+                <VerticalStackLayout x:Name="PasswordLayout" Spacing="4">
+                    <Label Text="Введіть пароль:"
+                       FontSize="Medium" />
+                    <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                        <Grid Padding="0" Margin="0" ColumnDefinitions="20*,1*">
+                            <Entry x:Name="PasswordEntry"
+                                Margin="0" FontSize="Medium" IsPassword="True"
+                                   Text="{Binding Password}" 
+                                   Placeholder="Ваш пароль"/>
+                            <ImageButton Grid.Column="1" Padding="10"
+                                Source="eye.png" MaximumWidthRequest="50"
+                                BackgroundColor="{StaticResource Secondary}" 
+                                Clicked="EyeButton_Clicked" />
+                        </Grid>
+                    </Frame>
+                </VerticalStackLayout>
+                <!-- New password entry -->
+                <VerticalStackLayout x:Name="ForgotPasswordLayout" Spacing="25"
+                                 IsVisible="False" IsEnabled="False">
+                    <VerticalStackLayout Margin="0" Padding="0">
+                        <Label Text="Введіть новий пароль:"
+                       FontSize="Medium" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Grid Padding="0" Margin="0" ColumnDefinitions="7*,1*">
+                                <Entry x:Name="NewPasswordEntry"
+                                Margin="0" FontSize="Medium" IsPassword="True"
+                                   Text="{Binding NewPassword}" 
+                                   Placeholder="Ваш новий пароль"/>
+                                <ImageButton Grid.Column="1" Padding="10"
+                                Source="eye.png" MaximumWidthRequest="50"
+                                BackgroundColor="{StaticResource Secondary}" 
+                                Clicked="EyeButton_Clicked" />
+                            </Grid>
+                        </Frame>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Margin="0" Padding="0">
+                        <Label Text="Підтвердіть новий пароль:"
+                       FontSize="Medium" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Grid Padding="0" Margin="0" ColumnDefinitions="7*,1*">
+                                <Entry x:Name="ConfirmNewPasswordEntry"
+                                Margin="0" FontSize="Medium" IsPassword="True"
+                                   Text="{Binding ConfirmNewPassword}" 
+                                   Placeholder="Ваш новий пароль"/>
+                                <ImageButton Grid.Column="1" Padding="10"
+                                Source="eye.png" MaximumWidthRequest="50"
+                                BackgroundColor="{StaticResource Secondary}" 
+                                Clicked="EyeButton_Clicked" />
+                            </Grid>
+                        </Frame>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+                <!-- Forgot password -->
+                <Label Text="Забули пароль?" HorizontalOptions="Start"
+                    TextDecorations="Underline" FontSize="Small" >
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="ForgotPassword_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <!-- Output of unsuccessful login attempts -->
+                <Label Text="{Binding ErrorsOutput}"
+                    HorizontalOptions="CenterAndExpand"
+                    TextColor="Red" FontSize="Small" />
+            </VerticalStackLayout>
+            <Button Grid.Row="1" Margin="10" Text="Увійти"
+                    Command="{Binding TryLoginCommand}" />
+        </Grid>
+    </ScrollView>
+
+</ContentPage>
