@@ -76,4 +76,8 @@
 	  <MauiSplashScreen Include="Resources\Splash\tryzub.png" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Presentation\Pages\" />
+	</ItemGroup>
+
 </Project>

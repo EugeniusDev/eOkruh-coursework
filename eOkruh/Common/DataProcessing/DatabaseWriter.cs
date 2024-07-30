@@ -1,6 +1,12 @@
-﻿namespace eOkruh.Common.DataProcessing
+﻿using eOkruh.Common.UserManagement;
+
+namespace eOkruh.Common.DataProcessing
 {
-    class DatabaseWriter
+    public static class DatabaseWriter
     {
+        public static void CreateUser(User user)
+        {
+            // TODO implement
+        }
     }
 }

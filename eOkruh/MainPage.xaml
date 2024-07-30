@@ -17,8 +17,7 @@
                 </HorizontalStackLayout>
                 <!-- Login entry -->
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="Введіть логін:"
-                       FontSize="Medium" />
+                    <Label Text="Введіть логін:" FontSize="Medium" />
                     <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
                         <Entry Margin="0" FontSize="Medium" 
                            Text="{Binding Login}" 
@@ -26,63 +25,65 @@
                     </Frame>
                 </VerticalStackLayout>
                 <!-- Password entry -->
-                <VerticalStackLayout x:Name="PasswordLayout" Spacing="4">
-                    <Label Text="Введіть пароль:"
-                       FontSize="Medium" />
+                <VerticalStackLayout x:Name="PasswordLayout" Spacing="4"
+                                     IsEnabled="{Binding PasswordLayoutActive}"
+                                     IsVisible="{Binding PasswordLayoutActive}">
+                    <Label Text="Введіть пароль:" FontSize="Medium" />
                     <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
                         <Grid Padding="0" Margin="0" ColumnDefinitions="20*,1*">
-                            <Entry x:Name="PasswordEntry"
-                                Margin="0" FontSize="Medium" IsPassword="True"
-                                   Text="{Binding Password}" 
-                                   Placeholder="Ваш пароль"/>
+                            <Entry IsPassword="{Binding IsPasswordHidden}"
+                                Margin="0" FontSize="Medium" 
+                                Text="{Binding Password}" 
+                                Placeholder="Ваш пароль"/>
                             <ImageButton Grid.Column="1" Padding="10"
                                 Source="eye.png" MaximumWidthRequest="50"
                                 BackgroundColor="{StaticResource Secondary}" 
-                                Clicked="EyeButton_Clicked" />
+                                Command="{Binding TogglePasswordVisibilityCommand}" />
                         </Grid>
                     </Frame>
                 </VerticalStackLayout>
                 <!-- New password entry -->
                 <VerticalStackLayout x:Name="ForgotPasswordLayout" Spacing="25"
-                                 IsVisible="False" IsEnabled="False">
+                        IsVisible="{Binding ForgotPasswordLayoutActive}"
+                        IsEnabled="{Binding ForgotPasswordLayoutActive}">
                     <VerticalStackLayout Margin="0" Padding="0">
-                        <Label Text="Введіть новий пароль:"
-                       FontSize="Medium" />
+                        <Label Text="Введіть новий пароль:" FontSize="Medium" />
                         <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
                             <Grid Padding="0" Margin="0" ColumnDefinitions="7*,1*">
-                                <Entry x:Name="NewPasswordEntry"
-                                Margin="0" FontSize="Medium" IsPassword="True"
-                                   Text="{Binding NewPassword}" 
-                                   Placeholder="Ваш новий пароль"/>
+                                <Entry IsPassword="{Binding IsPasswordHidden}"
+                                    Margin="0" FontSize="Medium" 
+                                    Text="{Binding NewPassword}" 
+                                    Placeholder="Ваш новий пароль"/>
                                 <ImageButton Grid.Column="1" Padding="10"
-                                Source="eye.png" MaximumWidthRequest="50"
-                                BackgroundColor="{StaticResource Secondary}" 
-                                Clicked="EyeButton_Clicked" />
+                                    Source="eye.png" MaximumWidthRequest="50"
+                                    BackgroundColor="{StaticResource Secondary}" 
+                                    Command="{Binding TogglePasswordVisibilityCommand}" />
                             </Grid>
                         </Frame>
                     </VerticalStackLayout>
                     <VerticalStackLayout Margin="0" Padding="0">
-                        <Label Text="Підтвердіть новий пароль:"
-                       FontSize="Medium" />
+                        <Label Text="Підтвердіть новий пароль:" FontSize="Medium" />
                         <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
                             <Grid Padding="0" Margin="0" ColumnDefinitions="7*,1*">
-                                <Entry x:Name="ConfirmNewPasswordEntry"
-                                Margin="0" FontSize="Medium" IsPassword="True"
-                                   Text="{Binding ConfirmNewPassword}" 
-                                   Placeholder="Ваш новий пароль"/>
+                                <Entry IsPassword="{Binding IsPasswordHidden}"
+                                    Margin="0" FontSize="Medium"
+                                    Text="{Binding ConfirmNewPassword}" 
+                                    Placeholder="Ваш новий пароль"/>
                                 <ImageButton Grid.Column="1" Padding="10"
-                                Source="eye.png" MaximumWidthRequest="50"
-                                BackgroundColor="{StaticResource Secondary}" 
-                                Clicked="EyeButton_Clicked" />
+                                    Source="eye.png" MaximumWidthRequest="50"
+                                    BackgroundColor="{StaticResource Secondary}" 
+                                    Command="{Binding TogglePasswordVisibilityCommand}" />
                             </Grid>
                         </Frame>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
                 <!-- Forgot password -->
                 <Label Text="Забули пароль?" HorizontalOptions="Start"
-                    TextDecorations="Underline" FontSize="Small" >
+                    TextDecorations="Underline" FontSize="Small"
+                    IsEnabled="{Binding PasswordLayoutActive}"
+                    IsVisible="{Binding PasswordLayoutActive}">
                     <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="ForgotPassword_Tapped" />
+                        <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}"/>
                     </Label.GestureRecognizers>
                 </Label>
                 <!-- Output of unsuccessful login attempts -->

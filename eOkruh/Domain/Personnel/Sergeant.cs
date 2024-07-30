@@ -1,6 +1,6 @@
 ﻿namespace eOkruh.Domain.Personnel
 {
-    class Sergeant
+    class Sergeant : Person
     {
 
     }

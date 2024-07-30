@@ -1,78 +1,134 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using eOkruh.Common.DataProcessing;
-using System.Text.RegularExpressions;
+using eOkruh.Common.UserManagement;
 
 namespace eOkruh.Presentation.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
+        bool passwordLayoutActive = true;
+        [ObservableProperty]
         string login = string.Empty;
         [ObservableProperty]
         string password = string.Empty;
+
+        [ObservableProperty]
+        bool forgotPasswordLayoutActive = false;
         [ObservableProperty]
         string newPassword = string.Empty;
         [ObservableProperty]
         string confirmNewPassword = string.Empty;
+
+        [ObservableProperty]
+        bool isPasswordHidden = true;
+
         [ObservableProperty]
         string errorsOutput = string.Empty;
+
+        [RelayCommand]
+        void TogglePasswordVisibility()
+        {
+            IsPasswordHidden = !IsPasswordHidden;
+        }
+
+        [RelayCommand]
+        void ForgotPassword()
+        {
+            ForgotPasswordLayoutActive = true;
+            PasswordLayoutActive = false;
+        }
 
         [RelayCommand]
         void TryLogin()
         {
             ErrorsOutput = string.Empty;
-            if (IsBasicInputValid())
+            if (!IsLoginInputValid())
             {
-                if (DatabaseReader.IsLoginInfoValid(Login, Password))
-                {
-                    // TODO get full user info and navigate to main page
-                }
+                return;
             }
-            else if (IsForgotPasswordInputValid())
-            {
 
+            if (IsPasswordInputValid())
+            {
+                TryLogIntoMainPage();
+            }
+            else if (ForgotPasswordLayoutActive
+                && IsForgotPasswordInputValid())
+            {
+                UserManager.ResetUserPassword(Login, NewPassword);
+                Password = NewPassword; 
+                TryLogIntoMainPage();
             }
         }
 
-        private bool IsBasicInputValid()
+        private bool IsLoginInputValid()
         {
             if (string.IsNullOrWhiteSpace(Login))
             {
                 ErrorsOutput = "Поле логіну порожнє, будь ласка, заповніть його";
                 return false;
             }
+            if (!UserManager.IsLoginValid(Login))
+            {
+                ErrorsOutput = "Введіть коректний логін, а саме Ваш номер телефону" +
+                " чи Вашу електронну пошту";
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsPasswordInputValid()
+        {
             if (string.IsNullOrWhiteSpace(Password))
             {
                 ErrorsOutput = "Поле паролю порожнє, будь ласка, заповніть його";
                 return false;
             }
 
-            return IsLoginValid();
+            return true;
         }
 
-        private bool IsLoginValid()
+        private void TryLogIntoMainPage()
         {
-            string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            string phonePattern = @"^\+380\d{9}$";
+            TryRetrieveUser(out User? user);
+            // TODO navigate to main page
+        }
 
-            bool isEmail = Regex.IsMatch(Login, emailPattern);
-            bool isPhoneNumber = Regex.IsMatch(Login, phonePattern);
-            if (isEmail || isPhoneNumber)
+        private bool TryRetrieveUser(out User? user)
+        {
+            user = UserManager.RetrieveValidUser(Login, Password);
+            if (user is null)
             {
-               return true;
+                ErrorsOutput = "Користувача не існує. Перевірте правильність вводу";
+                return false;
             }
 
-            ErrorsOutput = "Введіть коректний логін, а саме Ваш номер телефону" +
-                " чи Вашу електронну пошту";
-            return false;
+            return true;
         }
 
         private bool IsForgotPasswordInputValid()
         {
-            return !string.IsNullOrWhiteSpace(NewPassword)
-                && !string.IsNullOrWhiteSpace(ConfirmNewPassword)
-                && NewPassword.Equals(ConfirmNewPassword);
+            if (string.IsNullOrWhiteSpace(NewPassword))
+            {
+                ErrorsOutput = "Поле нового паролю порожнє, будь ласка, " +
+                    "заповніть його";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(ConfirmNewPassword))
+            {
+                ErrorsOutput = "Поле підтвердження нового паролю порожнє, " +
+                    "будь ласка, заповніть його";
+                return false;
+            }
+            if (!NewPassword.Equals(ConfirmNewPassword))
+            {
+                ErrorsOutput = "Паролі не збігаються. Будь ласка, введіть однаковий " +
+                    "пароль для підтвердження створення нового";
+                return false;
+            }
+
+            return true;
         }
     }
 }
