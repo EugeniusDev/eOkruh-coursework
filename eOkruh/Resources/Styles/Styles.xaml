@@ -418,10 +418,10 @@
     </Style>
 
     <Style TargetType="TabbedPage">
-        <Setter Property="BarBackgroundColor" Value="{StaticResource Background}" />
-        <Setter Property="BarTextColor" Value="{StaticResource Magenta}" />
-        <Setter Property="UnselectedTabColor" Value="{StaticResource Gray200}" />
-        <Setter Property="SelectedTabColor" Value="{StaticResource Gray950}" />
+        <Setter Property="BarBackgroundColor" Value="{StaticResource White}" />
+        <Setter Property="BarTextColor" Value="{StaticResource Black}" />
+        <Setter Property="UnselectedTabColor" Value="{StaticResource Black}" />
+        <Setter Property="SelectedTabColor" Value="{StaticResource Interactables}" />
     </Style>
 
 </ResourceDictionary>

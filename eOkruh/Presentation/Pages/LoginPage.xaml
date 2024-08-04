@@ -1,15 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="eOkruh.MainPage"
+             x:Class="eOkruh.Presentation.Pages.LoginPage"
              xmlns:viewmodels="clr-namespace:eOkruh.Presentation.ViewModels"
-             x:DataType="viewmodels:MainViewModel">
-
+             x:DataType="viewmodels:LoginViewModel">
     <ScrollView>
         <Grid RowDefinitions="10*, 2*">
-            <VerticalStackLayout
-                Padding="30,0"
-                Spacing="25">
+            <VerticalStackLayout Padding="30,0" Spacing="25">
                 <HorizontalStackLayout Spacing="0">
                     <Label Text="є" FontSize="Large" FontFamily="OpenSans-Semibold"
                        TextColor="{StaticResource Interactables}"/>
@@ -95,5 +92,4 @@
                     Command="{Binding TryLoginCommand}" />
         </Grid>
     </ScrollView>
-
 </ContentPage>

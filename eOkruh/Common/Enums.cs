@@ -1,6 +1,6 @@
 ﻿namespace eOkruh.Common
 {
-    public enum UserTypes : ushort
+    public enum UserRoles : ushort
     {
         Viewer,
         Operator,
@@ -14,11 +14,6 @@
         Division,
         Army,
         Corps
-    }
-
-    public enum MilitarySpeciality : ushort
-    {
-        test//todo
     }
 
     public enum OrdinaryPersonnel : ushort
@@ -38,21 +33,17 @@
         SeniorMasterSergeant,
         ChiefMasterSergeant
     }
-    public enum JuniorOfficerPersonnel : ushort
+    public enum OfficerPersonnel : ushort
     {
         JuniorLieutenant,
         Lieutenant,
         SeniorLieutenant,
-        Captain
-    }
-    public enum SeniorOfficerPersonnel : ushort
-    {
+        Captain,
+
         Major,
         LieutenantColonel,
-        Colonel
-    }
-    public enum HigherOfficerPersonnel : ushort
-    {
+        Colonel,
+
         BrigadeGeneral,
         GeneralMajor,
         GeneralLieutenant,

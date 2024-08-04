@@ -1,4 +1,5 @@
 ﻿using eOkruh.Presentation.ViewModels;
+using eOkruh.Presentation.Pages;
 using Microsoft.Extensions.Logging;
 
 namespace eOkruh
@@ -16,8 +17,11 @@ namespace eOkruh
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddSingleton<MainViewModel>();
+            builder.Services.AddSingleton<LoginPage>();
+            builder.Services.AddSingleton<LoginViewModel>();
+
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<MainViewModel>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

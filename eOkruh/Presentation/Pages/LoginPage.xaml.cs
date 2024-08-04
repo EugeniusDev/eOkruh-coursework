@@ -1,10 +1,10 @@
 ﻿using eOkruh.Presentation.ViewModels;
 
-namespace eOkruh
+namespace eOkruh.Presentation.Pages
 {
-    public partial class MainPage : ContentPage
+    public partial class LoginPage : ContentPage
     {
-        public MainPage(MainViewModel vm)
+        public LoginPage(LoginViewModel vm)
         {
             InitializeComponent();
             BindingContext = vm;
