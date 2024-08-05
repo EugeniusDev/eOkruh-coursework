@@ -15,14 +15,14 @@ namespace eOkruh.Common.UserManagement
             return isEmail || isPhoneNumber;
         }
 
-        public static User? RetrieveValidUser(string login, string password)
+        public static async Task<User?> RetrieveValidUser(string login, string password)
         {
-            return DatabaseReader.RetrieveUser(login, password);
+            return await DatabaseReader.GetUserByLoginAndPassword(login, password);
         }
 
-        public static void ResetUserPassword(string login, string newPassword)
+        public static async Task ResetUserPassword(string login, string newPassword)
         {
-            DatabaseUpdater.ResetUserPassword(login, newPassword);
+            await DatabaseSaver.SetNewPassword(login, newPassword);
         }
     }
 }

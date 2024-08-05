@@ -49,16 +49,23 @@ namespace eOkruh.Presentation.ViewModels
                 return;
             }
 
-            if (IsPasswordInputValid())
+            if (!ForgotPasswordLayoutActive && IsPasswordInputValid())
             {
                 await TryLogIntoMainPage();
             }
             else if (ForgotPasswordLayoutActive
                 && IsForgotPasswordInputValid())
             {
-                UserManager.ResetUserPassword(Login, NewPassword);
-                Password = NewPassword; 
-                await TryLogIntoMainPage();
+                try
+                {
+                    await UserManager.ResetUserPassword(Login, NewPassword);
+                    Password = NewPassword;
+                    await TryLogIntoMainPage();
+                }
+                catch
+                {
+                    ErrorsOutput = "Користувача не існує. Перевірте правильність вводу";
+                }
             }
         }
 
@@ -92,8 +99,10 @@ namespace eOkruh.Presentation.ViewModels
 
         private async Task TryLogIntoMainPage()
         {
-            if (TryRetrieveUser(out User? user))
+            try
             {
+                User? user = await UserManager.RetrieveValidUser(Login, Password)
+                    ?? throw new ArgumentException("No such user found");
                 await Shell.Current.GoToAsync(
                     $"{nameof(MainPage)}?{nameof(User)}={user!}",
                     true,
@@ -102,18 +111,10 @@ namespace eOkruh.Presentation.ViewModels
                         {nameof(User), user!}
                     });
             }
-        }
-
-        private bool TryRetrieveUser(out User? user)
-        {
-            user = UserManager.RetrieveValidUser(Login, Password);
-            if (user is null)
+            catch
             {
                 ErrorsOutput = "Користувача не існує. Перевірте правильність вводу";
-                return false;
             }
-
-            return true;
         }
 
         private bool IsForgotPasswordInputValid()
