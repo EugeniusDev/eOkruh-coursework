@@ -1,4 +1,6 @@
-﻿namespace eOkruh
+﻿using eOkruh.Common.DataProcessing;
+
+namespace eOkruh
 {
     public partial class App : Application
     {
@@ -7,6 +9,12 @@
             InitializeComponent();
 
             MainPage = new AppShell();
+        }
+
+        protected override async void CleanUp()
+        {
+            await DatabaseAccessor.CloseDatabaseConnection();
+            base.CleanUp();
         }
     }
 }

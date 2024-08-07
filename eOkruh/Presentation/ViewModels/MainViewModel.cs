@@ -11,33 +11,20 @@ namespace eOkruh.Presentation.ViewModels
         User user;
 
         [ObservableProperty]
-        bool isEditingPermitted = false;
-
+        PersonnelSearchViewModel? personnelVm;
         [ObservableProperty]
-        bool usersAccessPermitted = false;
-
+        BasePropertySearchViewModel? basePropertyVm;
         [ObservableProperty]
-        bool canCreateAdmins = false;
+        BaseDataSearchViewModel? baseDataVm;
+        [ObservableProperty]
+        UsersTabViewModel? usersVm;
 
         public void ConfigureViewModel()
         {
-            // TODO implement, define what should be displayed due to access level
-            var roles = RolesRepresentations.roleStrings;
-            if (User.UserRole.Equals(roles[UserRoles.Operator]))
-            {
-                IsEditingPermitted = true;
-            }
-            else if (User.UserRole.Equals(roles[UserRoles.Administrator]))
-            {
-                IsEditingPermitted = true;
-                UsersAccessPermitted = true;
-            }
-            else if (User.UserRole.Equals(roles[UserRoles.Owner]))
-            {
-                IsEditingPermitted = true;
-                UsersAccessPermitted = true;
-                CanCreateAdmins = true;
-            }
+            PersonnelVm = new();
+            BasePropertyVm = new();
+            BaseDataVm = new();
+            UsersVm = new(User);
         }
     }
 }

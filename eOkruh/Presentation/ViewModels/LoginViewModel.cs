@@ -101,8 +101,7 @@ namespace eOkruh.Presentation.ViewModels
         {
             try
             {
-                User? user = await UserManager.RetrieveValidUser(Login, Password)
-                    ?? throw new ArgumentException("No such user found");
+                User user = await UserManager.RetrieveValidUserForLogin(Login, Password);
                 await Shell.Current.GoToAsync(
                     $"{nameof(MainPage)}?{nameof(User)}={user!}",
                     true,

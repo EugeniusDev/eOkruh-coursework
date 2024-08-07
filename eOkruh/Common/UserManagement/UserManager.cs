@@ -1,4 +1,5 @@
 ﻿using eOkruh.Common.DataProcessing;
+using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
 namespace eOkruh.Common.UserManagement
@@ -15,14 +16,28 @@ namespace eOkruh.Common.UserManagement
             return isEmail || isPhoneNumber;
         }
 
-        public static async Task<User?> RetrieveValidUser(string login, string password)
+        public static async Task<User> RetrieveValidUserForLogin(string login, string password)
         {
-            return await DatabaseReader.GetUserByLoginAndPassword(login, password);
+            User? user = await DatabaseReader.GetUserByLoginAndPassword(login, password)
+                ?? throw new ArgumentException("No such user found");
+            await DatabaseSaver.UpdateLastLoginTime(user);
+            user.SetCurrentDateOfLogin();
+            return user;
         }
 
         public static async Task ResetUserPassword(string login, string newPassword)
         {
             await DatabaseSaver.SetNewPassword(login, newPassword);
+        }
+
+        public static async Task<ObservableCollection<FullUserInfo>> GetAllFullUserInfos()
+        {
+            List<string> fullNames = await DatabaseReader.GetAllUserFullNames();
+            ObservableCollection<FullUserInfo> fullUserInfos = [];
+            fullNames.ForEach(async fn => 
+                fullUserInfos.Add(await DatabaseReader.GetFullUserInfo(fn))
+                );
+            return fullUserInfos;
         }
     }
 }

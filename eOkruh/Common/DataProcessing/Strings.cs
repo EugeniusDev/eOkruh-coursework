@@ -8,5 +8,8 @@
         public static readonly string databasePassword = "testPassword";
         public static readonly string userDatabase = "users";
         #endregion
+        #region User related
+        public static readonly string noData = "-";
+        #endregion
     }
 }
