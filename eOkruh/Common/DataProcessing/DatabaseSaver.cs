@@ -13,7 +13,6 @@ namespace eOkruh.Common.DataProcessing
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
                 ON MATCH SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate";
             
-            string loginDate = Strings.noData;
             await session.ExecuteWriteAsync(async tx =>
             {
                 await tx.RunAsync(query, new
@@ -22,7 +21,7 @@ namespace eOkruh.Common.DataProcessing
                     fullName = user.FullName,
                     password = user.Password,
                     userRole = user.UserRole,
-                    logDate = loginDate
+                    logDate = user.DateOfLogin
                 });
             });
         }
@@ -35,12 +34,12 @@ namespace eOkruh.Common.DataProcessing
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
                 ON MATCH SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
-                
                 MERGE (a:User {FullName: $assigneeFullName})
+                
+                WITH u, a
                 OPTIONAL MATCH (u)-[r:ASSIGNED_BY]->() DELETE r
                 MERGE (u)-[:ASSIGNED_BY {assignedDate: $assignedDate}]->(a)";
 
-            string loginDate = Strings.noData;
             string currentDate = DateTime.Now.ToString();
             await session.ExecuteWriteAsync(async tx =>
             {
@@ -50,7 +49,7 @@ namespace eOkruh.Common.DataProcessing
                     fullName = userToSave.FullName,
                     password = userToSave.Password,
                     userRole = userToSave.UserRole,
-                    logDate = loginDate,
+                    logDate = userToSave.DateOfLogin,
 
                     assigneeFullName = assignee.FullName,
                     assignedDate = currentDate
