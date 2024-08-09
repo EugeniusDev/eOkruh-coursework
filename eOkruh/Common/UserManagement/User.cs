@@ -16,6 +16,18 @@ namespace eOkruh.Common.UserManagement
             DateOfLogin = DateTime.Now.ToString();
         }
 
+        public bool IsViewer()
+        {
+            return UserRole.Equals(RolesRepresentations
+                .roleStrings[UserRoles.Viewer]);
+        }
+
+        public bool IsOperator()
+        {
+            return UserRole.Equals(RolesRepresentations
+                .roleStrings[UserRoles.Operator]);
+        }
+
         public bool IsAdministrator()
         {
             return UserRole.Equals(RolesRepresentations

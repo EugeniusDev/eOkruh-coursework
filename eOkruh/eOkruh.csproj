@@ -41,7 +41,8 @@
 	<ItemGroup>
 		<!-- Resouces used for images:
 			https://www.freepik.com/free-vector/flat-design-ukraine-national-emblems-collection_24180358.htm
-			https://www.freepik.com/icon/watch_13170041 -->
+			https://www.freepik.com/icon/watch_13170041
+			https://www.freepik.com/icon/search_3942005 -->
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#e1dfcc" />
 
@@ -87,6 +88,12 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Presentation\Pages\MainPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Pages\Tabs\PersonnelTab.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Pages\Tabs\UsersTab.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

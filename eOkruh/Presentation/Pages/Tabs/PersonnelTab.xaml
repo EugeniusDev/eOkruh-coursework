@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="eOkruh.Presentation.Pages.Tabs.PersonnelTab"
+             xmlns:viewmodel="clr-namespace:eOkruh.Presentation.ViewModels"
+             xmlns:personnel="clr-namespace:eOkruh.Domain.Personnel"
+             Title="Особовий склад" x:DataType="viewmodel:PersonnelTabViewModel">
+    <ScrollView>
+        <VerticalStackLayout Margin="10" Spacing="20">
+            <!-- Search properties -->
+            <Frame BackgroundColor="{StaticResource Secondary}"
+                BorderColor="{StaticResource SecondaryBorder}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Параметри пошуку" FontSize="Medium" HorizontalOptions="Center" />
+                    <Picker x:Name="SearchTypePicker"
+                            ItemsSource="{Binding SearchTypePickerItems}"
+                            SelectedItem="{Binding SearchTypePickerSelectedItem}" />
+                    <FlexLayout AlignContent="SpaceEvenly" JustifyContent="SpaceEvenly">
+                        <SearchBar Text="{Binding PrimarySearchBar}"
+                           SearchCommand="{Binding PerformSearchCommand}"                           
+                           Placeholder="Введіть звання/спеціальність" />
+                        <SearchBar Text="{Binding SecondarySearchBar}"
+                           SearchCommand="{Binding PerformSearchCommand}"                           
+                           Placeholder="Введіть конкретну структуру" />
+                        <ImageButton Source="search_icon.png" MaximumHeightRequest="50"
+                             Command="{Binding PerformSearchCommand}" />
+                    </FlexLayout>
+                    <Label Grid.Row="4" Grid.ColumnSpan="2"
+                        Text="{Binding SearchErrorMessage}"
+                        HorizontalOptions="CenterAndExpand"
+                        TextColor="Red" FontSize="Small" />
+                </VerticalStackLayout>
+            </Frame>
+            <!-- Search output -->
+            <Frame BackgroundColor="{StaticResource Secondary}"
+                BorderColor="{StaticResource SecondaryBorder}">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Результати пошуку" FontSize="Medium"
+                            HorizontalOptions="Center" />
+                    <VerticalStackLayout Spacing="1">
+                        <!-- Headers -->
+                        <Frame Padding="0" Margin="6" CornerRadius="8">
+                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="0">
+                                <Label Text="ПІБ" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="Звання" Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="Спеціальності" Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="Належить до в\ч" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                                <Label Text="Структури під командуванням" Grid.Column="4" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                                <VerticalStackLayout Spacing="2" Grid.Column="5" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label Text="Особлива властивість 1" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                                    <Button Text="Докладніше" x:Name="FirstSpecialPropertyInfoBtn"
+                                            Clicked="FirstSpecialPropertyInfoBtn_Clicked"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" Grid.Column="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label Text="Особлива властивість 2" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                                    <Button Text="Докладніше" x:Name="SecondSpecialPropertyInfoBtn"
+                                            Clicked="SecondSpecialPropertyInfoBtn_Clicked"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                        <!-- Content -->
+                        <ScrollView MaximumHeightRequest="550">
+                            <CollectionView ItemsSource="{Binding PersonnelInfos}" 
+                                EmptyView="Здійсніть пошук, щоб побачити бажані результати">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="{x:Type personnel:FullPersonnelInfo}">
+                                        <Frame Padding="0" Margin="6" CornerRadius="8">
+                                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="1">
+                                                <Label Text="{Binding MilitaryPerson.FullName}" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Label Text="{Binding MilitaryPerson.Rank}" Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Label Text="{Binding MilitaryPerson.Specialities}" Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Label Text="{Binding MilitaryBase}" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Label Text="{Binding StructuresUnderControl}" Grid.Column="4" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Grid>
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </ScrollView>
+                    </VerticalStackLayout>
+                    <!-- Editing related stuff -->
+                    <VerticalStackLayout Spacing="2"
+                            IsEnabled="{Binding CanEdit}" IsVisible="{Binding CanEdit}">
+                        <Label Text="{Binding SaveChangesErrorMessage}"
+                            HorizontalOptions="CenterAndExpand"
+                            TextColor="Red" FontSize="Small" />
+                        <Button Text="{Binding EditButtonText}" 
+                            Command="{Binding ToggleEditModeCommand}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+            <!-- Adding new military personnel -->
+            <Frame IsEnabled="{Binding CanAddNewPersonnel}" IsVisible="{Binding CanAddNewPersonnel}"
+                BackgroundColor="{StaticResource Secondary}"
+                BorderColor="{StaticResource SecondaryBorder}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Додати нового військовослужбовця" FontSize="Medium" HorizontalOptions="Center" />
+                    <Picker x:Name="RankPicker" SelectedIndexChanged="RankPicker_SelectedIndexChanged"
+                            SelectedItem="{Binding NewPersonnelMemberInfo.MilitaryPerson.Rank}" />
+                    <!-- Name entry -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Введіть повне ім'я:" FontSize="Small" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Entry Margin="0" FontSize="Small" 
+                               Text="{Binding NewPersonnelMemberInfo.MilitaryPerson.FullName}" 
+                               Placeholder="Прізвище Ім'я По батькові"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                    <!-- Specialities entry -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Введіть спеціальності:" FontSize="Small" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Entry Margin="0" FontSize="Small" 
+                               Text="{Binding NewPersonnelMemberInfo.MilitaryPerson.Specialities}" 
+                               Placeholder="Приклад вводу: Стрілець, Марксмен, Водій"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                    <!-- MilitaryBase entry -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Введіть повну назву військової частини:" FontSize="Small" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Entry Margin="0" FontSize="Small" 
+                               Text="{Binding NewPersonnelMemberInfo.MilitaryBase}" 
+                               Placeholder="Введіть назву в/ч військовослужбовця"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                    <!-- Structures under control entry -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Введіть структури, якими керує військовослужбовець:" FontSize="Small" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Entry Margin="0" FontSize="Small" 
+                               Text="{Binding NewPersonnelMemberInfo.StructuresUnderControl}" 
+                               Placeholder="Приклад заповнення: Взвод 1, Бригада 4, Відділення 2"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                    <!-- Special property 1 entry -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="SpecialProp1_Label" 
+                               Text="Особлива властивість 1:" FontSize="Small" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Entry Margin="0" FontSize="Small" 
+                               Text="{Binding NewPersonnelMemberInfo.MilitaryPerson.SpecialProperty1}" 
+                               Placeholder="Введіть дані"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                    <!-- Special property 2 entry -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="SpecialProp2_Label"
+                            Text="Особлива властивість 2:" FontSize="Small" />
+                        <Frame Padding="0" BorderColor="{StaticResource SecondaryBorder}">
+                            <Entry Margin="0" FontSize="Small" 
+                               Text="{Binding NewPersonnelMemberInfo.MilitaryPerson.SpecialProperty2}" 
+                               Placeholder="Введіть дані"/>
+                        </Frame>
+                    </VerticalStackLayout>                    
+                    <Label Grid.Row="4" Grid.ColumnSpan="2"
+                        Text="{Binding AddNewPersonnelErrorMessage}"
+                        HorizontalOptions="CenterAndExpand"
+                        TextColor="Red" FontSize="Small" />
+                    <Button Text="Додати" 
+                            Command="{Binding SaveNewPersonnelMemberCommand}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Deleting database content -->
+            <Button IsEnabled="{Binding CanDeleteDatabase}" IsVisible="{Binding CanDeleteDatabase}"
+                Text="Безповоротно видалити всі дані з бази даних" 
+                x:Name="DatabaseDeleteBtn" Clicked="DatabaseDeleteBtn_Clicked"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

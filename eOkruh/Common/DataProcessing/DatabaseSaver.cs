@@ -17,11 +17,11 @@ namespace eOkruh.Common.DataProcessing
             {
                 await tx.RunAsync(query, new
                 {
-                    login = user.Login,
-                    fullName = user.FullName,
-                    password = user.Password,
-                    userRole = user.UserRole,
-                    logDate = user.DateOfLogin
+                    login = user.Login.Trim(),
+                    fullName = user.FullName.Trim(),
+                    password = user.Password.Trim(),
+                    userRole = user.UserRole.Trim(),
+                    logDate = user.DateOfLogin.Trim()
                 });
             });
         }
@@ -45,14 +45,14 @@ namespace eOkruh.Common.DataProcessing
             {
                 await tx.RunAsync(query, new
                 {
-                    login = userToSave.Login,
-                    fullName = userToSave.FullName,
-                    password = userToSave.Password,
-                    userRole = userToSave.UserRole,
-                    logDate = userToSave.DateOfLogin,
+                    login = userToSave.Login.Trim(),
+                    fullName = userToSave.FullName.Trim(),
+                    password = userToSave.Password.Trim(),
+                    userRole = userToSave.UserRole.Trim(),
+                    logDate = userToSave.DateOfLogin.Trim(),
 
-                    assigneeFullName = assignee.FullName,
-                    assignedDate = currentDate
+                    assigneeFullName = assignee.FullName.Trim(),
+                    assignedDate = currentDate.Trim()
                 });
             });
         }
@@ -70,17 +70,19 @@ namespace eOkruh.Common.DataProcessing
             {
                 await tx.RunAsync(query, new
                 {
-                    login = user.Login,
-                    fullName = user.FullName,
-                    password = user.Password,
-                    userRole = user.UserRole,
-                    currentDate = loginDate
+                    login = user.Login.Trim(),
+                    fullName = user.FullName.Trim(),
+                    password = user.Password.Trim(),
+                    userRole = user.UserRole.Trim(),
+                    currentDate = loginDate.Trim()
                 });
             });
         }
 
         public static async Task SetNewPassword(string userLogin, string newPassword)
         {
+            userLogin = userLogin.Trim();
+            newPassword = newPassword.Trim();
             using var session = DatabaseAccessor.driver.AsyncSession(o => 
                 o.WithDatabase(Strings.userDatabase));
             var query = @"

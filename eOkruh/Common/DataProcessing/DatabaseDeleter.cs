@@ -15,8 +15,35 @@ namespace eOkruh.Common.DataProcessing
 
             await session.ExecuteWriteAsync(async tx =>
             {
-                await tx.RunAsync(query, new { fullName = user.FullName });
+                await tx.RunAsync(query, new { fullName = user.FullName.Trim() });
             });
         }
+        #region Global
+        public static async Task DeleteMainDatabase()
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (n)
+                DETACH DELETE n";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query);
+            });
+        }
+        public static async Task DeleteUserDatabase()
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession(o =>
+                o.WithDatabase(Strings.userDatabase));
+            var query = @"
+                MATCH (n)
+                DETACH DELETE n";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query);
+            });
+        }
+        #endregion
     }
 }

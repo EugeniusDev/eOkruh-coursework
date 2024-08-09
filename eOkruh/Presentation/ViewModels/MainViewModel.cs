@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using eOkruh.Common;
 using eOkruh.Common.UserManagement;
 
 namespace eOkruh.Presentation.ViewModels
@@ -11,19 +10,19 @@ namespace eOkruh.Presentation.ViewModels
         User user;
 
         [ObservableProperty]
-        PersonnelSearchViewModel? personnelVm;
+        PersonnelTabViewModel? personnelVm;
         [ObservableProperty]
-        BasePropertySearchViewModel? basePropertyVm;
+        BasePropertyTabViewModel? basePropertyVm;
         [ObservableProperty]
-        BaseDataSearchViewModel? baseDataVm;
+        BaseDataTabViewModel? baseDataVm;
         [ObservableProperty]
         UsersTabViewModel? usersVm;
 
         public void ConfigureViewModel()
         {
-            PersonnelVm = new();
-            BasePropertyVm = new();
-            BaseDataVm = new();
+            PersonnelVm = new(User);
+            BasePropertyVm = new(User);
+            BaseDataVm = new(User);
             UsersVm = new(User);
         }
     }

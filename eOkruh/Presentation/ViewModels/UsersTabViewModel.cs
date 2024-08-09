@@ -50,6 +50,9 @@ namespace eOkruh.Presentation.ViewModels
         [ObservableProperty]
         ObservableCollection<FullUserInfo> fullUserInfos = [];
 
+        [ObservableProperty]
+        bool canDeleteDatabase = false;
+
         public UsersTabViewModel(User currentUser)
         {
             User = currentUser;
@@ -73,6 +76,7 @@ namespace eOkruh.Presentation.ViewModels
                 ];
                 CanManageUsers = true;
                 PopulateFullUserInfos();
+                CanDeleteDatabase = true;
             }
 
             UpdatingUserRoleSelectedOption = UpdatingUserRoleOptions[0];
@@ -86,7 +90,6 @@ namespace eOkruh.Presentation.ViewModels
         [RelayCommand]
         async Task TryUpdateUser()
         {
-            // TODO fix. throws an error
             UserUpdatingErrorMessage = string.Empty;
             if (AreUserToUpdateFieldsFilled()
                 && UserManager.IsLoginValid(UserToUpdate.Login))
