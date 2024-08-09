@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using eOkruh.Common;
 using eOkruh.Common.DataProcessing;
 using eOkruh.Common.UserManagement;
+using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Personnel;
 using System.Collections.ObjectModel;
 
@@ -34,6 +36,8 @@ namespace eOkruh.Presentation.ViewModels
         bool canEdit = false;
         [ObservableProperty]
         string editButtonText = Strings.edit;
+        [ObservableProperty]
+        bool isInEditingMode = false;
         [ObservableProperty]
         string saveChangesErrorMessage = string.Empty;
 
@@ -84,7 +88,7 @@ namespace eOkruh.Presentation.ViewModels
             {
                 return;
             }
-            if (IsEditModeActive())
+            if (IsInEditingMode)
             {
                 SearchErrorMessage = "Збережіть зміни, перш ніж шукати інформацію";
             }
@@ -133,11 +137,6 @@ namespace eOkruh.Presentation.ViewModels
             }
 
             return true;
-        }
-
-        private bool IsEditModeActive()
-        {
-            return EditButtonText.Equals(Strings.save);
         }
 
         bool IsSecondarySearchBarRequired()
@@ -237,16 +236,41 @@ namespace eOkruh.Presentation.ViewModels
 
         #region Editing
         [RelayCommand]
-        void ToggleEditMode()
+        async Task ToggleEditMode()
         {
-            if (IsEditModeActive())
+            if (IsInEditingMode)
             {
                 SaveChangesErrorMessage = string.Empty;
-                // TODO maybe implement some checks
+                foreach (FullPersonnelInfo info in PersonnelInfos)
+                {
+                    if (!PersonnelManager
+                        .IsMilitaryPersonInfoValid(info.MilitaryPerson, 
+                            out string errorMessage))
+                    {
+                        SaveChangesErrorMessage = errorMessage;
+                        return;
+                    }
+                    if (!await StructureManager.IsStructureStringValid(info))
+                    {
+                        SaveChangesErrorMessage = "Перевірте правильність написання структур під командуванням. " +
+                            "Зауважте, що військовослужбовці рядового й сержантського складу можуть командувати " +
+                            "тільки взводом і відділенням. " +
+                            $"У випадку відсутності таких структур напишіть \"{Strings.noData}\"";
+                        return;
+                    }
+                    if (!await StructureManager.StructureExists(info.MilitaryBase))
+                    {
+                        SaveChangesErrorMessage = "Введено неіснуючу військову частину," +
+                            "перевірте правильність написання";
+                        return;
+                    }
+                }
                 try
                 {
-                    // TODO try to save everything
-
+                    foreach (FullPersonnelInfo info in PersonnelInfos)
+                    {
+                        await PersonnelManager.SavePersonnelInfo(info);
+                    }
                 }
                 catch
                 {
@@ -254,13 +278,12 @@ namespace eOkruh.Presentation.ViewModels
                     return;
                 }
                 EditButtonText = Strings.edit;
-                // TODO make UI non-interactable
+                IsInEditingMode = false;
             }
             else
             {
                 EditButtonText = Strings.save;
-                // TODO make UI interactable
-
+                IsInEditingMode = true;
             }
         }
         #endregion
@@ -270,13 +293,36 @@ namespace eOkruh.Presentation.ViewModels
         async Task SaveNewPersonnelMember()
         {
             AddNewPersonnelErrorMessage = string.Empty;
-            if (IsEditModeActive())
+            if (IsInEditingMode)
             {
                 AddNewPersonnelErrorMessage = "Збережіть всі зміни, перш ніж " +
                     "додавати нові дані до бази";
                 return;
             }
-            // TODO some checks and try to save that
+            if (!PersonnelManager
+                .IsMilitaryPersonInfoValid(NewPersonnelMemberInfo.MilitaryPerson, 
+                    out string errorMessage))
+            {
+                AddNewPersonnelErrorMessage = errorMessage;
+                return;
+            }
+            if (!await StructureManager.IsStructureStringValid(NewPersonnelMemberInfo))
+            {
+                SaveChangesErrorMessage = "Перевірте правильність написання структур під командуванням. " +
+                    "Зауважте, що військовослужбовці рядового й сержантського складу можуть командувати " +
+                    "тільки взводом і відділенням. " +
+                    $"У випадку відсутності таких структур напишіть \"{Strings.noData}\"";
+                return;
+            }
+            if (!await StructureManager.StructureExists(
+                NewPersonnelMemberInfo.MilitaryBase))
+            {
+                AddNewPersonnelErrorMessage = "Введено неіснуючу військову частину," +
+                    "перевірте правильність написання";
+                return;
+            }
+
+            await PersonnelManager.SavePersonnelInfo(NewPersonnelMemberInfo);
         }
         #endregion
 

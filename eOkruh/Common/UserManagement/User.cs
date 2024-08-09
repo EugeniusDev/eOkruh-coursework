@@ -1,6 +1,4 @@
-﻿using eOkruh.Common.DataProcessing;
-
-namespace eOkruh.Common.UserManagement
+﻿namespace eOkruh.Common.UserManagement
 {
     public class User
     {

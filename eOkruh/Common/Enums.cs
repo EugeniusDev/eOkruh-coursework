@@ -1,21 +1,5 @@
 ﻿namespace eOkruh.Common
 {
-    public enum UserRoles : ushort
-    {
-        Viewer,
-        Operator,
-        Administrator,
-        Owner
-    }
-
-    public enum StructureType : ushort
-    {
-        Base,// TODO remake or what
-        Division,
-        Army,
-        Corps
-    }
-
     public enum OrdinaryPersonnel : ushort
     {
         Recruit,
@@ -50,4 +34,23 @@
         General
     }
 
+    public enum StructureTypes : ushort
+    {
+        Branch,
+        Platoon,
+        Company,
+        Base,
+        Division,
+        Corps,
+        Brigade,
+        Army
+    }
+
+    public enum UserRoles : ushort
+    {
+        Viewer,
+        Operator,
+        Administrator,
+        Owner
+    }
 }

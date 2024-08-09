@@ -1,14 +1,17 @@
 ﻿using eOkruh.Common.UserManagement;
+using eOkruh.Domain.Personnel;
 using Neo4j.Driver;
+using System.Collections.ObjectModel;
 
 namespace eOkruh.Common.DataProcessing
 {
     public static class DatabaseReader
     {
+        #region UsersTab
         public static async Task<User?> GetUserByLogin(string login)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (u:User {Login: $login})
                 RETURN u.FullName as FullName, u.Login as Login, u.Password as Password, u.UserRole as UserRole";
@@ -38,7 +41,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task<User?> GetUserByLoginAndPassword(string login, string password)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (u:User {Login: $login, Password: $password})
                 RETURN u.FullName as FullName, u.Login as Login, u.Password as Password, u.UserRole as UserRole";
@@ -68,7 +71,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task<List<string>> GetAllUserFullNames()
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (u:User)
                 RETURN u.FullName AS FullName";
@@ -92,7 +95,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task<FullUserInfo> GetFullUserInfo(string userFullName)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (u:User {FullName: $userFullName})
                 OPTIONAL MATCH (u)-[r:ASSIGNED_BY]->(a:User)
@@ -129,5 +132,64 @@ namespace eOkruh.Common.DataProcessing
 
             return result ?? throw new ArgumentException("User was not found");
         }
+        #endregion
+
+        #region PersonnelTab
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetPersonnelInfosByRank(string rank, string structureScope)
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (u:MilitaryPerson)
+                RETURN u.FullName AS FullName";// todo make query
+
+            if (structureScope.Equals(Strings.noData))
+            {
+                query = @"
+                MATCH (u:MilitaryPerson)
+                RETURN u.FullName AS FullName";// todo exclude part related to structure here
+            }
+            throw new NotImplementedException();
+        }
+
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetPersonnelInfosBySpeciality(string rank, string structureScope)
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (u:MilitaryPerson)
+                RETURN u.FullName AS FullName";// todo make query
+
+            throw new NotImplementedException();
+        }
+
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetAllPersonnelInfos()
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (u:MilitaryPerson)
+                RETURN u.FullName AS FullName";// todo make query
+
+            var personnelInfoData = await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query);
+                ObservableCollection<FullPersonnelInfo> personnelInfos = [];
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    personnelInfos.Add(new FullPersonnelInfo()
+                    {
+                        MilitaryPerson = new()
+                        {
+                            FullName = record["FullName"].As<string>(),
+                            //todo implement
+                        }
+                    });
+                });
+
+                return personnelInfos;
+            });
+
+            return personnelInfoData;
+        }
+        #endregion
     }
 }

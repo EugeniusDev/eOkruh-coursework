@@ -34,39 +34,60 @@ namespace eOkruh.Domain.Personnel
             RankRepresentations.officerStrings[OfficerPersonnel.General]
         ];
 
-
-        // TODO implement
-        // kind of adapter between database operations
-        // and getting required info for them from objects
-
-
-        public static Task<ObservableCollection<FullPersonnelInfo>> GetAllInfos()
+        public static bool IsMilitaryPersonInfoValid(MilitaryPerson person, out string errorMessage)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(person.FullName)
+                || person.FullName.Equals(Strings.noData))
+            {
+                errorMessage = "Поле з повним ім'ям є обов'язковим до заповнення";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(person.Rank)
+                || person.Rank.Equals(Strings.noData))
+            {
+                errorMessage = "Будь ласка, оберіть коректне звання";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(person.SpecialProperty1)
+                || person.SpecialProperty1.Equals(Strings.noData))
+            {
+                errorMessage = "Будь ласка, введіть дані для особливої властивості 1";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(person.SpecialProperty2)
+                || person.SpecialProperty2.Equals(Strings.noData))
+            {
+                errorMessage = "Будь ласка, введіть дані для особливої властивості 2";
+                return false;
+            }
+
+            errorMessage = string.Empty;
+            return true;
         }
 
-        public static Task<ObservableCollection<FullPersonnelInfo>> GetInfosByRank(string rank)
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetInfosByRank(string rank)
         {
-            throw new NotImplementedException();
+            return await DatabaseReader.GetPersonnelInfosByRank(rank, Strings.noData);
         }
 
-        public static Task<ObservableCollection<FullPersonnelInfo>> GetInfosByRankWithScope(string rank, string structureName)
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetInfosByRankWithScope(string rank, string structureName)
         {
-            throw new NotImplementedException();
+            return await DatabaseReader.GetPersonnelInfosByRank(rank, structureName);
         }
 
-        public static Task<ObservableCollection<FullPersonnelInfo>> GetInfosBySpecialityAndStructure(string speciality, string structureName)
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetInfosBySpecialityAndStructure(string speciality, string structureName)
         {
-            throw new NotImplementedException();
+            return await DatabaseReader.GetPersonnelInfosBySpeciality(speciality, structureName);
         }
 
-        static void test()
+        public static async Task<ObservableCollection<FullPersonnelInfo>> GetAllInfos()
         {
-            // TODO use that structure to split and validate stuff
-            string test = string.Empty;
-            var testtest = test.Split(Strings.separator,
-                StringSplitOptions.RemoveEmptyEntries);
+            return await DatabaseReader.GetAllPersonnelInfos();
         }
 
+        public static async Task SavePersonnelInfo(FullPersonnelInfo info)
+        {
+            await DatabaseSaver.SavePersonnelInfo(info);
+        }
     }
 }

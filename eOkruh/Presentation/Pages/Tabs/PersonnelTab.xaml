@@ -66,11 +66,24 @@
                                     <DataTemplate x:DataType="{x:Type personnel:FullPersonnelInfo}">
                                         <Frame Padding="0" Margin="6" CornerRadius="8">
                                             <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="1">
-                                                <Label Text="{Binding MilitaryPerson.FullName}" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
-                                                <Label Text="{Binding MilitaryPerson.Rank}" Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
-                                                <Label Text="{Binding MilitaryPerson.Specialities}" Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" />
-                                                <Label Text="{Binding MilitaryBase}" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Center" />
-                                                <Label Text="{Binding StructuresUnderControl}" Grid.Column="4" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Label Text="{Binding MilitaryPerson.FullName}" 
+                                                       Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Entry Text="{Binding MilitaryPerson.Rank}" 
+                                                       IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=IsInEditingMode}"
+                                                       Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Entry Text="{Binding MilitaryPerson.Specialities}" 
+                                                       IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=IsInEditingMode}"
+                                                       Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Entry Text="{Binding MilitaryBase}" 
+                                                       IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=IsInEditingMode}"
+                                                       Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Entry Text="{Binding StructuresUnderControl}" 
+                                                       IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=IsInEditingMode}"                            
+                                                       Grid.Column="4" HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Grid>
                                         </Frame>
                                     </DataTemplate>

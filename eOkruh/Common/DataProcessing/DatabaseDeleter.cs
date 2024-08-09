@@ -7,7 +7,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task DeleteUser(User user)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (u:User {FullName: $fullName})
                 OPTIONAL MATCH (u)-[r:ASSIGNED_BY]->()
@@ -34,7 +34,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task DeleteUserDatabase()
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (n)
                 DETACH DELETE n";

@@ -1,13 +1,15 @@
 ﻿using eOkruh.Common.UserManagement;
+using eOkruh.Domain.Personnel;
 
 namespace eOkruh.Common.DataProcessing
 {
     public static class DatabaseSaver
     {
+        #region UsersTab
         public static async Task SaveUser(User user)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
@@ -29,7 +31,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task SaveUserWithAssignee(User userToSave, User assignee)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
@@ -60,7 +62,7 @@ namespace eOkruh.Common.DataProcessing
         public static async Task UpdateLastLoginTime(User user)
         {
             using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.DateOfLogin = $currentDate
@@ -84,7 +86,7 @@ namespace eOkruh.Common.DataProcessing
             userLogin = userLogin.Trim();
             newPassword = newPassword.Trim();
             using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(Strings.userDatabase));
+                o.WithDatabase(DatabaseStrings.userDatabase));
             var query = @"
                 MATCH (u:User {Login: $userLogin})
                 SET u.Password = $newPassword
@@ -93,6 +95,14 @@ namespace eOkruh.Common.DataProcessing
             {
                 await tx.RunAsync(query, new { userLogin, newPassword });
             });
-        }        
+        }
+        #endregion
+
+        #region PersonnelTab
+        public static async Task SavePersonnelInfo(FullPersonnelInfo info)
+        {
+            throw new NotImplementedException();// TODO implement
+        }
+        #endregion
     }
 }
