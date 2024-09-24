@@ -1,4 +1,5 @@
 ﻿using eOkruh.Common.UserManagement;
+using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Personnel;
 using Neo4j.Driver;
 using System.Collections.ObjectModel;
@@ -138,57 +139,160 @@ namespace eOkruh.Common.DataProcessing
         public static async Task<ObservableCollection<FullPersonnelInfo>> GetPersonnelInfosByRank(string rank, string structureScope)
         {
             using var session = DatabaseAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (u:MilitaryPerson)
-                RETURN u.FullName AS FullName";// todo make query
-
-            if (structureScope.Equals(Strings.noData))
+            var result = await session.ExecuteReadAsync(async tx =>
             {
-                query = @"
-                MATCH (u:MilitaryPerson)
-                RETURN u.FullName AS FullName";// todo exclude part related to structure here
-            }
-            throw new NotImplementedException();
-        }
+                var query = @"
+                    MATCH (p:MilitaryPerson {Rank: $rank})-[:COMMANDS]->(s:Structure)
+                    WHERE s.Name CONTAINS $structureScope
+                    OPTIONAL MATCH (p)-[:REGISTERED_IN]->(mb:Structure)
+                    RETURN p, collect(DISTINCT s.Name) AS structures, mb.Name AS militaryBase
+                ";
+                var cursor = await tx.RunAsync(query, new { rank, structureScope });
+                var personnelInfos = new ObservableCollection<FullPersonnelInfo>();
 
-        public static async Task<ObservableCollection<FullPersonnelInfo>> GetPersonnelInfosBySpeciality(string rank, string structureScope)
-        {
-            using var session = DatabaseAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (u:MilitaryPerson)
-                RETURN u.FullName AS FullName";// todo make query
-
-            throw new NotImplementedException();
-        }
-
-        public static async Task<ObservableCollection<FullPersonnelInfo>> GetAllPersonnelInfos()
-        {
-            using var session = DatabaseAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (u:MilitaryPerson)
-                RETURN u.FullName AS FullName";// todo make query
-
-            var personnelInfoData = await session.ExecuteReadAsync(async tx =>
-            {
-                var resultCursor = await tx.RunAsync(query);
-                ObservableCollection<FullPersonnelInfo> personnelInfos = [];
-
-                await resultCursor.ForEachAsync(record =>
+                await cursor.ForEachAsync(record =>
                 {
-                    personnelInfos.Add(new FullPersonnelInfo()
+                    var person = record["p"].As<INode>().Properties;
+                    var structures = record["structures"].As<string[]>();
+                    var militaryBase = record["militaryBase"].As<string>();
+
+                    personnelInfos.Add(new FullPersonnelInfo
                     {
-                        MilitaryPerson = new()
+                        MilitaryPerson = new MilitaryPerson
                         {
-                            FullName = record["FullName"].As<string>(),
-                            //todo implement
-                        }
+                            FullName = person["FullName"].As<string>(),
+                            Rank = person["Rank"].As<string>(),
+                            Specialities = person["Specialities"].As<string>(),
+                            SpecialProperty1 = person["SpecialProperty1"].As<string>(),
+                            SpecialProperty2 = person["SpecialProperty2"].As<string>()
+                        },
+                        MilitaryBase = militaryBase,
+                        StructuresUnderControl = string.Join(", ", structures)
                     });
                 });
 
                 return personnelInfos;
             });
 
-            return personnelInfoData;
+            return result;
+        }
+
+    public static async Task<ObservableCollection<FullPersonnelInfo>> GetPersonnelInfosBySpeciality(string rank, string speciality)
+    {
+        using var session = DatabaseAccessor.driver.AsyncSession();
+        var result = await session.ExecuteReadAsync(async tx =>
+        {
+            var query = @"
+                MATCH (p:MilitaryPerson {Rank: $rank})
+                WHERE p.Specialities CONTAINS $speciality
+                OPTIONAL MATCH (p)-[:COMMANDS]->(s:Structure)
+                OPTIONAL MATCH (p)-[:REGISTERED_IN]->(mb:Structure)
+                RETURN p, collect(DISTINCT s.Name) AS structures, mb.Name AS militaryBase
+            ";
+            var cursor = await tx.RunAsync(query, new { rank, speciality });
+            var personnelInfos = new ObservableCollection<FullPersonnelInfo>();
+
+            await cursor.ForEachAsync(record =>
+            {
+                var person = record["p"].As<INode>().Properties;
+                var structures = record["structures"].As<string[]>();
+                var militaryBase = record["militaryBase"].As<string>();
+
+                personnelInfos.Add(new FullPersonnelInfo
+                {
+                    MilitaryPerson = new MilitaryPerson
+                    {
+                        FullName = person["FullName"].As<string>(),
+                        Rank = person["Rank"].As<string>(),
+                        Specialities = person["Specialities"].As<string>(),
+                        SpecialProperty1 = person["SpecialProperty1"].As<string>(),
+                        SpecialProperty2 = person["SpecialProperty2"].As<string>()
+                    },
+                    MilitaryBase = militaryBase,
+                    StructuresUnderControl = string.Join(", ", structures)
+                });
+            });
+
+            return personnelInfos;
+        });
+
+        return result;
+    }
+
+    public static async Task<ObservableCollection<FullPersonnelInfo>> GetAllPersonnelInfos()
+    {
+        using var session = DatabaseAccessor.driver.AsyncSession();
+        var result = await session.ExecuteReadAsync(async tx =>
+        {
+            var query = @"
+                MATCH (p:MilitaryPerson)
+                OPTIONAL MATCH (p)-[:COMMANDS]->(s:Structure)
+                OPTIONAL MATCH (p)-[:REGISTERED_IN]->(mb:Structure)
+                RETURN p, collect(DISTINCT s.Name) AS structures, mb.Name AS militaryBase
+            ";
+            var cursor = await tx.RunAsync(query);
+            var personnelInfos = new ObservableCollection<FullPersonnelInfo>();
+
+            await cursor.ForEachAsync(record =>
+            {
+                var person = record["p"].As<INode>().Properties;
+                var structures = record["structures"].As<string[]>();
+                var militaryBase = record["militaryBase"].As<string>();
+
+                personnelInfos.Add(new FullPersonnelInfo
+                {
+                    MilitaryPerson = new MilitaryPerson
+                    {
+                        FullName = person["FullName"].As<string>(),
+                        Rank = person["Rank"].As<string>(),
+                        Specialities = person["Specialities"].As<string>(),
+                        SpecialProperty1 = person["SpecialProperty1"].As<string>(),
+                        SpecialProperty2 = person["SpecialProperty2"].As<string>()
+                    },
+                    MilitaryBase = militaryBase,
+                    StructuresUnderControl = string.Join(", ", structures)
+                });
+            });
+
+            return personnelInfos;
+        });
+
+        return result;
+    }
+    #endregion
+
+    #region Structures
+    public static async Task<Structure> GetStructure(string name)
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (s:Structure {Name: $name})
+                OPTIONAL MATCH (s)-[:IS_PART_OF]->(ancS:Structure)
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SpecialProperty,
+                COALESCE(ancS.Name, $noData) AS AncestorStructureName";
+
+            var result = await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query, new { name, Strings.noData });
+                var record = await resultCursor.SingleAsync();
+
+                if (record != null)
+                {
+                    var structure = new Structure
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty = record["SpecialProperty"].As<string>(),
+                        AncestorStructureName = record["AncestorStructureName"].As<string>()
+                    };
+
+                    return structure;
+                }
+
+                return null;
+            });
+
+            return result ?? throw new ArgumentException("Structure was not found");
         }
         #endregion
     }

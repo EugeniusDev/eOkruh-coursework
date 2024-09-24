@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using eOkruh.Common.DataProcessing;
 using eOkruh.Common.UserManagement;
 using eOkruh.Presentation.Pages;
 
@@ -43,6 +44,9 @@ namespace eOkruh.Presentation.ViewModels
         [RelayCommand]
         async Task TryLogin()
         {
+            // Uncomment to refill database
+            await DatabaseFiller.CreateSampleData();
+
             ErrorsOutput = string.Empty;
             if (!IsLoginInputValid())
             {

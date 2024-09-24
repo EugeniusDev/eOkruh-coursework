@@ -1,4 +1,5 @@
 ﻿using eOkruh.Common.UserManagement;
+using eOkruh.Domain.Personnel;
 
 namespace eOkruh.Common.DataProcessing
 {
@@ -18,6 +19,35 @@ namespace eOkruh.Common.DataProcessing
                 await tx.RunAsync(query, new { fullName = user.FullName.Trim() });
             });
         }
+
+        public static async Task DeleteMilitaryPerson(MilitaryPerson person)
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (p:Person {FullName: $fullName})
+                DETACH DELETE p";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query, new { fullName = person.FullName.Trim() });
+            });
+        }
+
+        public static async Task DeletePersonRelations(MilitaryPerson person)
+        {
+            using var session = DatabaseAccessor.driver.AsyncSession();
+            var query = @"
+                MATCH (p:Person {FullName: $fullName})
+                OPTIONAL MATCH (p)-[b:REGISTERED_IN]->()
+                OPTIONAL MATCH (p)-[s:COMMANDS]->()
+                DELETE b, s";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query, new { fullName = person.FullName.Trim() });
+            });
+        }
+
         #region Global
         public static async Task DeleteMainDatabase()
         {
