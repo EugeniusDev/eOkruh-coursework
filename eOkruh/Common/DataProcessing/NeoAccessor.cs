@@ -2,12 +2,12 @@
 
 namespace eOkruh.Common.DataProcessing
 {
-    internal static class DatabaseAccessor
+    internal static class NeoAccessor
     {
         public static readonly IDriver driver = GraphDatabase
-            .Driver(DatabaseStrings.databaseLocalConnectionString,
-                AuthTokens.Basic(DatabaseStrings.databaseUsername,
-                DatabaseStrings.databasePassword));
+            .Driver(NeoStrings.databaseLocalConnectionString,
+                AuthTokens.Basic(NeoStrings.databaseUsername,
+                NeoStrings.databasePassword));
 
         public static async Task CloseDatabaseConnection()
         {

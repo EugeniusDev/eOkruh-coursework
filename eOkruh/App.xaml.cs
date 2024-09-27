@@ -13,7 +13,7 @@ namespace eOkruh
 
         protected override async void CleanUp()
         {
-            await DatabaseAccessor.CloseDatabaseConnection();
+            await NeoAccessor.CloseDatabaseConnection();
             base.CleanUp();
         }
     }

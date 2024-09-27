@@ -18,24 +18,24 @@ namespace eOkruh.Common.UserManagement
 
         public static async Task<User> RetrieveValidUserForLogin(string login, string password)
         {
-            User? user = await DatabaseReader.GetUserByLoginAndPassword(login, password)
+            User? user = await NeoReader.GetUserByLoginAndPassword(login, password)
                 ?? throw new ArgumentException("No such user found");
-            await DatabaseSaver.UpdateLastLoginTime(user);
+            await NeoSaver.UpdateLastLoginTime(user);
             user.SetCurrentDateOfLogin();
             return user;
         }
 
         public static async Task ResetUserPassword(string login, string newPassword)
         {
-            await DatabaseSaver.SetNewPassword(login, newPassword);
+            await NeoSaver.SetNewPassword(login, newPassword);
         }
 
         public static async Task<ObservableCollection<FullUserInfo>> GetAllFullUserInfos()
         {
-            List<string> fullNames = await DatabaseReader.GetAllUserFullNames();
+            List<string> fullNames = await NeoReader.GetAllUserFullNames();
             ObservableCollection<FullUserInfo> fullUserInfos = [];
             fullNames.ForEach(async fn => 
-                fullUserInfos.Add(await DatabaseReader.GetFullUserInfo(fn))
+                fullUserInfos.Add(await NeoReader.GetFullUserInfo(fn))
                 );
             return fullUserInfos;
         }

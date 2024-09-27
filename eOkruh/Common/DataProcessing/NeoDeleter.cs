@@ -3,12 +3,12 @@ using eOkruh.Domain.Personnel;
 
 namespace eOkruh.Common.DataProcessing
 {
-    public static class DatabaseDeleter
+    public static class NeoDeleter
     {
         public static async Task DeleteUser(User user)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(DatabaseStrings.userDatabase));
+            using var session = NeoAccessor.driver.AsyncSession(o =>
+                o.WithDatabase(NeoStrings.userDatabase));
             var query = @"
                 MATCH (u:User {FullName: $fullName})
                 OPTIONAL MATCH (u)-[r:ASSIGNED_BY]->()
@@ -22,7 +22,7 @@ namespace eOkruh.Common.DataProcessing
 
         public static async Task DeleteMilitaryPerson(MilitaryPerson person)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession();
+            using var session = NeoAccessor.driver.AsyncSession();
             var query = @"
                 MATCH (p:Person {FullName: $fullName})
                 DETACH DELETE p";
@@ -33,25 +33,10 @@ namespace eOkruh.Common.DataProcessing
             });
         }
 
-        public static async Task DeletePersonRelations(MilitaryPerson person)
-        {
-            using var session = DatabaseAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (p:Person {FullName: $fullName})
-                OPTIONAL MATCH (p)-[b:REGISTERED_IN]->()
-                OPTIONAL MATCH (p)-[s:COMMANDS]->()
-                DELETE b, s";
-
-            await session.ExecuteWriteAsync(async tx =>
-            {
-                await tx.RunAsync(query, new { fullName = person.FullName.Trim() });
-            });
-        }
-
         #region Global
         public static async Task DeleteMainDatabase()
         {
-            using var session = DatabaseAccessor.driver.AsyncSession();
+            using var session = NeoAccessor.driver.AsyncSession();
             var query = @"
                 MATCH (n)
                 DETACH DELETE n";
@@ -63,8 +48,8 @@ namespace eOkruh.Common.DataProcessing
         }
         public static async Task DeleteUserDatabase()
         {
-            using var session = DatabaseAccessor.driver.AsyncSession(o =>
-                o.WithDatabase(DatabaseStrings.userDatabase));
+            using var session = NeoAccessor.driver.AsyncSession(o =>
+                o.WithDatabase(NeoStrings.userDatabase));
             var query = @"
                 MATCH (n)
                 DETACH DELETE n";

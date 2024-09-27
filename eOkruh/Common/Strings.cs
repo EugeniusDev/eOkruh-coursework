@@ -9,5 +9,15 @@
         public static readonly string confirm = "Зроз, добре";
         public static readonly string edit = "Редагувати";
         public static readonly string save = "Зберегти";
+
+        public static string[] SplitByComma(string input)
+        {
+            return input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string JoinWithComma(string[] input)
+        {
+            return string.Join(separator, input);
+        }
     }
 }

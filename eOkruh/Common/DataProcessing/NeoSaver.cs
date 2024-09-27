@@ -4,13 +4,13 @@ using eOkruh.Domain.Personnel;
 
 namespace eOkruh.Common.DataProcessing
 {
-    public static class DatabaseSaver
+    public static class NeoSaver
     {
         #region UsersTab
         public static async Task SaveUser(User user)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(DatabaseStrings.userDatabase));
+            using var session = NeoAccessor.driver.AsyncSession(o => 
+                o.WithDatabase(NeoStrings.userDatabase));
             var query = @"
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
@@ -31,8 +31,8 @@ namespace eOkruh.Common.DataProcessing
 
         public static async Task SaveUserWithAssignee(User userToSave, User assignee)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(DatabaseStrings.userDatabase));
+            using var session = NeoAccessor.driver.AsyncSession(o => 
+                o.WithDatabase(NeoStrings.userDatabase));
             var query = @"
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
@@ -62,8 +62,8 @@ namespace eOkruh.Common.DataProcessing
 
         public static async Task UpdateLastLoginTime(User user)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(DatabaseStrings.userDatabase));
+            using var session = NeoAccessor.driver.AsyncSession(o => 
+                o.WithDatabase(NeoStrings.userDatabase));
             var query = @"
                 MERGE (u:User {FullName: $fullName})
                 ON CREATE SET u.DateOfLogin = $currentDate
@@ -86,8 +86,8 @@ namespace eOkruh.Common.DataProcessing
         {
             userLogin = userLogin.Trim();
             newPassword = newPassword.Trim();
-            using var session = DatabaseAccessor.driver.AsyncSession(o => 
-                o.WithDatabase(DatabaseStrings.userDatabase));
+            using var session = NeoAccessor.driver.AsyncSession(o => 
+                o.WithDatabase(NeoStrings.userDatabase));
             var query = @"
                 MATCH (u:User {Login: $userLogin})
                 SET u.Password = $newPassword
@@ -102,7 +102,7 @@ namespace eOkruh.Common.DataProcessing
         #region PersonnelTab
         public static async Task SavePerson(MilitaryPerson person)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession();
+            using var session = NeoAccessor.driver.AsyncSession();
             var personQuery = @"
                 MERGE (p:MilitaryPerson {FullName: $name})
                 ON CREATE SET 
@@ -128,79 +128,12 @@ namespace eOkruh.Common.DataProcessing
                 });
             });
         }
-        public static async Task SavePersonnelInfo(FullPersonnelInfo info)
-        {
-            using var session = DatabaseAccessor.driver.AsyncSession();
-            await session.ExecuteWriteAsync(async tx =>
-            {
-                // Check if the MilitaryBase exists
-                var militaryBaseQuery = @"
-                MATCH (s:Structure {Name: $name, Type: 'Військова частина'})
-                RETURN s
-            ";
-                var militaryBaseResult = await tx.RunAsync(militaryBaseQuery, new { name = info.MilitaryBase });
-                if (!await militaryBaseResult.FetchAsync() && !string.IsNullOrEmpty(info.MilitaryBase))
-                {
-                    throw new Exception($"Military base '{info.MilitaryBase}' not found.");
-                }
-
-                // Check if the StructuresUnderControl exist
-                var structuresUnderControl = info.StructuresUnderControl.Split(',').Select(s => s.Trim()).ToList();
-                foreach (var structure in structuresUnderControl)
-                {
-                    var structureQuery = @"
-                    MATCH (s:Structure {Name: $name})
-                    WHERE s.Type IN ['Відділення', 'Взвод']
-                    RETURN s
-                ";
-                    var structureResult = await tx.RunAsync(structureQuery, new { name = structure });
-                    if (!await structureResult.FetchAsync())
-                    {
-                        throw new Exception($"Structure '{structure}' not found or is not of type 'Відділення' or 'Взвод'.");
-                    }
-                }
-
-                // Create or update MilitaryPerson node
-                var createPersonQuery = @"
-                MERGE (p:MilitaryPerson {FullName: $fullName})
-                SET p.Rank = $rank,
-                    p.Specialities = $specialities,
-                    p.SpecialProperty1 = $specialProperty1,
-                    p.SpecialProperty2 = $specialProperty2
-                WITH p
-                OPTIONAL MATCH (p)-[r:REGISTERED_IN]->()
-                DELETE r
-                WITH p
-                OPTIONAL MATCH (p)-[c:COMMANDS]->()
-                DELETE c
-                WITH p
-                MATCH (mb:Structure {Name: $militaryBase, Type: 'Військова частина'})
-                CREATE (p)-[:REGISTERED_IN]->(mb)
-                WITH p
-                UNWIND $structuresUnderControl AS structureName
-                MATCH (s:Structure {Name: structureName})
-                WHERE s.Type IN ['Відділення', 'Взвод']
-                CREATE (p)-[:COMMANDS]->(s)
-            ";
-
-                await tx.RunAsync(createPersonQuery, new
-                {
-                    fullName = info.MilitaryPerson.FullName,
-                    rank = info.MilitaryPerson.Rank,
-                    specialities = info.MilitaryPerson.Specialities,
-                    specialProperty1 = info.MilitaryPerson.SpecialProperty1,
-                    specialProperty2 = info.MilitaryPerson.SpecialProperty2,
-                    militaryBase = info.MilitaryBase,
-                    structuresUnderControl
-                });
-            });
-        }
         #endregion
 
         #region Structures
         public static async Task SaveStructure(Structure structure)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession();
+            using var session = NeoAccessor.driver.AsyncSession();
             var structureQuery = @"
                 MERGE (s:Structure {Name: $name})
                 ON CREATE SET 
@@ -224,7 +157,7 @@ namespace eOkruh.Common.DataProcessing
 
         public static async Task UpdateStructure(Structure oldStructure, Structure newStructure)
         {
-            using var session = DatabaseAccessor.driver.AsyncSession();
+            using var session = NeoAccessor.driver.AsyncSession();
             var query = @"
                 MATCH (s:Structure {Name: $oldName})
                 SET s.Name = $newName, s.SpecialProperty = $newSpecialProperty

@@ -106,12 +106,6 @@ namespace eOkruh.Presentation.ViewModels
             }
             else
             {
-                if (!RankExists())
-                {
-                    SearchErrorMessage = "Введено неіснуюче звання";
-                    return;
-                }
-
                 if (IsSecondarySearchBarEmpty())
                 {
                     await SearchForRank();
@@ -149,88 +143,29 @@ namespace eOkruh.Presentation.ViewModels
             return string.IsNullOrWhiteSpace(SecondarySearchBar);
         }
 
-        bool RankExists()
-        {
-            string rank = GetCorrectedRankInput();
-            if (string.IsNullOrEmpty(rank))
-            {
-                return false;
-            }
-
-            return RankRepresentations.ordinary.ContainsKey(rank)
-                || RankRepresentations.sergeant.ContainsKey(rank)
-                || RankRepresentations.officer.ContainsKey(rank);
-        }
-
-        private string GetCorrectedRankInput()
-        {
-            string rank = PrimarySearchBar.Trim();
-            if (rank.Length < 2)
-            {
-                return string.Empty;
-            }
-            rank = char.ToUpper(rank[0]) + rank[1..];
-
-            return rank;
-        }
-
         async Task SearchForAllPersonnelInfos()
         {
-            try
-            {
-                PersonnelInfos = await PersonnelManager.GetAllInfos();
-            }
-            catch
-            {
-                SearchErrorMessage = "Неочікувана помилка. " +
-                    "Нічого не знайдено";
-            }
+            PersonnelInfos = await PersonnelManager.GetAllInfos();
         }
-
         async Task SearchForRank()
         {
-            string rank = GetCorrectedRankInput();
-            try
-            {
-                PersonnelInfos = await PersonnelManager.GetInfosByRank(rank);
-            }
-            catch
-            {
-                SearchErrorMessage = "Нічого не знайдено. Перевірте " +
-                    "правильність написання звання";
-            }
+            string rank = PrimarySearchBar.Trim();
+            PersonnelInfos = await PersonnelManager.GetInfosByRank(rank);
         }
-
         async Task SearchForRankWithStructureScope()
         {
-            string rank = GetCorrectedRankInput();
+            string rank = PrimarySearchBar.Trim();
             string structureName = SecondarySearchBar.Trim();
-            try
-            {
-                PersonnelInfos = await PersonnelManager
-                    .GetInfosByRankWithScope(rank, structureName);
-            }
-            catch
-            {
-                SearchErrorMessage = "Нічого не знайдено. Перевірте " +
-                    "правильність написання звання/структури";
-            }
+            PersonnelInfos = await PersonnelManager
+                .GetScopedInfosWithRank(rank, structureName);
         }
 
         async Task SearchForSpecialityWithStructureScope()
         {
             string speciality = PrimarySearchBar.Trim();
             string structureName = SecondarySearchBar.Trim();
-            try
-            {
-                PersonnelInfos = await PersonnelManager
-                    .GetInfosBySpecialityAndStructure(speciality, structureName);
-            }
-            catch
-            {
-                SearchErrorMessage = "Нічого не знайдено. Перевірте " +
-                    "правильність написання посади/структури";
-            }
+            PersonnelInfos = await PersonnelManager
+                .GetScopedInfosWithSpeciality(speciality, structureName);
         }
         #endregion
 
@@ -258,7 +193,7 @@ namespace eOkruh.Presentation.ViewModels
                             $"У випадку відсутності таких структур напишіть \"{Strings.noData}\"";
                         return;
                     }
-                    if (!await StructureManager.StructureExists(info.MilitaryBase))
+                    if (!await StructureManager.StructureExists(new() { Name = info.MilitaryBase }))
                     {
                         SaveChangesErrorMessage = "Введено неіснуючу військову частину," +
                             "перевірте правильність написання";
@@ -272,9 +207,9 @@ namespace eOkruh.Presentation.ViewModels
                         await PersonnelManager.SavePersonnelInfo(info);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    SaveChangesErrorMessage = "Неочікувана помилка при збереженні даних";
+                    SaveChangesErrorMessage = ex.Message;
                     return;
                 }
                 EditButtonText = Strings.edit;
@@ -315,21 +250,27 @@ namespace eOkruh.Presentation.ViewModels
                 return;
             }
             if (!await StructureManager.StructureExists(
-                NewPersonnelMemberInfo.MilitaryBase))
+                    new() { Name = NewPersonnelMemberInfo.MilitaryBase }))
             {
                 AddNewPersonnelErrorMessage = "Введено неіснуючу військову частину," +
                     "перевірте правильність написання";
                 return;
             }
-
-            await PersonnelManager.SavePersonnelInfo(NewPersonnelMemberInfo);
+            try
+            {
+                await PersonnelManager.SavePersonnelInfo(NewPersonnelMemberInfo);
+            }
+            catch (Exception ex)
+            {
+                AddNewPersonnelErrorMessage = ex.Message;
+            }
         }
         #endregion
 
         [RelayCommand]
         async static Task DeleteDatabase()
         {
-            await DatabaseDeleter.DeleteMainDatabase();
+            await NeoDeleter.DeleteMainDatabase();
         }
     }
 }

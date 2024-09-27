@@ -39,7 +39,7 @@
                             HorizontalOptions="Center" />
                     <VerticalStackLayout Spacing="1">
                         <!-- Headers -->
-                        <Frame Padding="0" Margin="6" CornerRadius="8">
+                        <Frame Padding="0" Margin="6,0" CornerRadius="8">
                             <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="0">
                                 <Label Text="ПІБ" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
                                 <Label Text="Звання" Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
@@ -59,12 +59,12 @@
                             </Grid>
                         </Frame>
                         <!-- Content -->
-                        <ScrollView MaximumHeightRequest="550">
+                        <ScrollView MaximumHeightRequest="550" Margin="6,0">
                             <CollectionView ItemsSource="{Binding PersonnelInfos}" 
                                 EmptyView="Здійсніть пошук, щоб побачити бажані результати">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="{x:Type personnel:FullPersonnelInfo}">
-                                        <Frame Padding="0" Margin="6" CornerRadius="8">
+                                        <Frame Padding="0" CornerRadius="8">
                                             <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="1">
                                                 <Label Text="{Binding MilitaryPerson.FullName}" 
                                                        Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
@@ -84,6 +84,14 @@
                                                        IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
                                                             Path=IsInEditingMode}"                            
                                                        Grid.Column="4" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Entry Text="{Binding MilitaryPerson.SpecialProperty1}" 
+                                                       IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=IsInEditingMode}"
+                                                       Grid.Column="5" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Entry Text="{Binding MilitaryPerson.SpecialProperty2}" 
+                                                       IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=IsInEditingMode}"                            
+                                                       Grid.Column="6" HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Grid>
                                         </Frame>
                                     </DataTemplate>

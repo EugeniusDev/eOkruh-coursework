@@ -3,11 +3,11 @@ using eOkruh.Domain.Personnel;
 
 namespace eOkruh.Common.DataProcessing
 {
-    public static class DatabaseFiller
+    public static class NeoFiller
     {
         public static async Task CreateSampleData()
         {
-            using var session = DatabaseAccessor.driver.AsyncSession();
+            using var session = NeoAccessor.driver.AsyncSession();
 
             List<MilitaryPerson> persons =
             [
@@ -145,7 +145,7 @@ namespace eOkruh.Common.DataProcessing
             ];
             foreach (var p in persons)
             {
-                await DatabaseSaver.SavePerson(p);
+                await NeoSaver.SavePerson(p);
             }
 
             List<Structure> structures =
@@ -387,142 +387,142 @@ namespace eOkruh.Common.DataProcessing
             ];
             foreach (var s in structures)
             {
-                await DatabaseSaver.SaveStructure(s);
+                await NeoSaver.SaveStructure(s);
             }
 
             // COMMANDS relation
             for (int i = 0; i < persons.Count; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeCommands(persons[i], structures[i]);
             }
             // REGISTERED_IN relation
             for (int i = 0; i < 8; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[98]);
             }
             for (int i = 56; i < 60; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[98]);
             }
             for (int i = 84; i < 86; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[98]);
             }
 
             for (int i = 8; i < 16; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[99]);
             }
             for (int i = 60; i < 64; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[99]);
             }
             for (int i = 86; i < 88; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[99]);
             }
 
             for (int i = 16; i < 24; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[100]);
             }
             for (int i = 64; i < 68; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[100]);
             }
             for (int i = 88; i < 90; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[100]);
             }
 
             for (int i = 24; i < 32; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[101]);
             }
             for (int i = 68; i < 72; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[101]);
             }
             for (int i = 90; i < 92; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[101]);
             }
 
             for (int i = 32; i < 40; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[102]);
             }
             for (int i = 72; i < 76; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[102]);
             }
             for (int i = 92; i < 94; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[102]);
             }
 
             for (int i = 40; i < 48; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[103]);
             }
             for (int i = 76; i < 80; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[103]);
             }
             for (int i = 94; i < 96; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[103]);
             }
 
             for (int i = 48; i < 56; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[104]);
             }
             for (int i = 80; i < 84; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[104]);
             }
             for (int i = 96; i < 98; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[104]);
             }
 
             for (int i = 98; i < 105; i++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[i]);
             }
-            await DatabaseRelationMaker
+            await NeoRelationManager
                     .MakeRegisteredIn(persons[105], structures[104]);
 
             for (int i = 106, j = 98; i < persons.Count - 1; i++, j++)
             {
-                await DatabaseRelationMaker
+                await NeoRelationManager
                     .MakeRegisteredIn(persons[i], structures[j]);
             }
-            await DatabaseRelationMaker
+            await NeoRelationManager
                 .MakeRegisteredIn(persons[^1], structures[98]);
 
             // Branches IS_PART_OF platoons
@@ -531,8 +531,8 @@ namespace eOkruh.Common.DataProcessing
             {
                 int parentStrIndex = 56 + (divider / 2);
                 divider++;
-                await DatabaseRelationMaker
-                    .StructureInStructure(structures[i], structures[parentStrIndex]);
+                await NeoRelationManager
+                    .MakeStructureInStructure(structures[i], structures[parentStrIndex]);
             }
             // Platoons IS_PART_OF companies
             divider = 0;
@@ -540,8 +540,8 @@ namespace eOkruh.Common.DataProcessing
             {
                 int parentStrIndex = 84 + (divider / 2);
                 divider++;
-                await DatabaseRelationMaker
-                    .StructureInStructure(structures[i], structures[parentStrIndex]);
+                await NeoRelationManager
+                    .MakeStructureInStructure(structures[i], structures[parentStrIndex]);
             }
             // Companies IS_PART_OF bases
             divider = 0;
@@ -549,25 +549,25 @@ namespace eOkruh.Common.DataProcessing
             {
                 int parentStrIndex = 98 + (divider / 2);
                 divider++;
-                await DatabaseRelationMaker
-                    .StructureInStructure(structures[i], structures[parentStrIndex]);
+                await NeoRelationManager
+                    .MakeStructureInStructure(structures[i], structures[parentStrIndex]);
             }
             // Bases IS_PART_OF divisions, corps, brigades
             for (int i = 98, j = 106; i < 103; i++, j++)
             {
-                await DatabaseRelationMaker
-                    .StructureInStructure(structures[i], structures[j]);
+                await NeoRelationManager
+                    .MakeStructureInStructure(structures[i], structures[j]);
             }
             for (int i = 103; i < 106; i++)
             {
-                await DatabaseRelationMaker
-                    .StructureInStructure(structures[i], structures[111]);
+                await NeoRelationManager
+                    .MakeStructureInStructure(structures[i], structures[111]);
             }
             // Divisions, corps, brigades IS_PART_OF army
             for (int i = 106; i < structures.Count - 1; i++)
             {
-                await DatabaseRelationMaker
-                    .StructureInStructure(structures[i], structures[^1]);
+                await NeoRelationManager
+                    .MakeStructureInStructure(structures[i], structures[^1]);
             }
         }
     }

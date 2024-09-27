@@ -48,7 +48,7 @@ public partial class PersonnelTab : ContentPage
             Strings.confirm, Strings.cancel, FlowDirection.LeftToRight);
         if (isDeletionConfirmed)
         {
-            await DatabaseDeleter.DeleteUserDatabase();
+            await NeoDeleter.DeleteUserDatabase();
         }
     }
 

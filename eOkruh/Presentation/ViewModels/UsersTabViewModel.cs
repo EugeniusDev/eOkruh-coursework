@@ -95,7 +95,7 @@ namespace eOkruh.Presentation.ViewModels
                 && UserManager.IsLoginValid(UserToUpdate.Login))
             {
                 UserToUpdate.UserRole = UpdatingUserRoleSelectedOption;
-                await DatabaseSaver.SaveUserWithAssignee(UserToUpdate, User);
+                await NeoSaver.SaveUserWithAssignee(UserToUpdate, User);
                 if (User.IsOwner())
                 {
                     await PopulateFullUserInfos();
@@ -127,7 +127,7 @@ namespace eOkruh.Presentation.ViewModels
         [RelayCommand]
         async Task DeleteUser(FullUserInfo fullUserInfo)
         {
-            await DatabaseDeleter.DeleteUser(fullUserInfo.User);
+            await NeoDeleter.DeleteUser(fullUserInfo.User);
             await PopulateFullUserInfos();
         }
     }
