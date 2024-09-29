@@ -283,14 +283,24 @@ namespace eOkruh.Domain.Personnel
 
         private static async Task CreateRelationsToStructures(FullPersonnelInfo info)
         {
-            await NeoRelationManager.MakeRegisteredIn(info.MilitaryPerson, 
-                new() { Name = info.MilitaryBase });
+            Structure baseOfPerson = new()
+            {
+                Name = info.MilitaryBase,
+                Type = await StructureManager.GetStructureType(info.MilitaryBase)
+            };
+            await NeoRelationManager
+                .MakeRegisteredIn(info.MilitaryPerson, baseOfPerson);
             string[] structuresUnderControlNames = Strings
                 .SplitByComma(info.StructuresUnderControl);
             foreach (string structureName in structuresUnderControlNames)
             {
-                await NeoRelationManager.MakeCommands(info.MilitaryPerson,
-                    new() { Name = structureName });
+                Structure structureUnderControl = new()
+                {
+                    Name = structureName,
+                    Type = await StructureManager.GetStructureType(structureName)
+                };
+                await NeoRelationManager
+                    .MakeCommands(info.MilitaryPerson, structureUnderControl);
             }
         }
     }

@@ -11,8 +11,8 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o => 
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MERGE (u:User {FullName: $fullName})
+            var query = $@"
+                MERGE (u:{nameof(User)} {{FullName: $fullName}})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
                 ON MATCH SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate";
             
@@ -33,15 +33,15 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o => 
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MERGE (u:User {FullName: $fullName})
+            var query = $@"
+                MERGE (u:{nameof(User)} {{FullName: $fullName}})
                 ON CREATE SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
                 ON MATCH SET u.Login = $login, u.Password = $password, u.UserRole = $userRole, u.DateOfLogin = $logDate
-                MERGE (a:User {FullName: $assigneeFullName})
+                MERGE (a:{nameof(User)} {{FullName: $assigneeFullName}})
                 
                 WITH u, a
-                OPTIONAL MATCH (u)-[r:ASSIGNED_BY]->() DELETE r
-                MERGE (u)-[:ASSIGNED_BY {assignedDate: $assignedDate}]->(a)";
+                OPTIONAL MATCH (u)-[r:{NeoStrings.assignedByRelation}]->() DELETE r
+                MERGE (u)-[:{NeoStrings.assignedByRelation} {{assignedDate: $assignedDate}}]->(a)";
 
             string currentDate = DateTime.Now.ToString();
             await session.ExecuteWriteAsync(async tx =>
@@ -64,8 +64,8 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o => 
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MERGE (u:User {FullName: $fullName})
+            var query = $@"
+                MERGE (u:{nameof(User)} {{FullName: $fullName}})
                 ON CREATE SET u.DateOfLogin = $currentDate
                 ON MATCH SET u.DateOfLogin = $currentDate";
             string loginDate = DateTime.Now.ToString();
@@ -88,8 +88,8 @@ namespace eOkruh.Common.DataProcessing
             newPassword = newPassword.Trim();
             using var session = NeoAccessor.driver.AsyncSession(o => 
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MATCH (u:User {Login: $userLogin})
+            var query = $@"
+                MATCH (u:{nameof(User)} {{Login: $userLogin}})
                 SET u.Password = $newPassword
                 RETURN u";
             await session.ExecuteWriteAsync(async tx =>
@@ -103,8 +103,8 @@ namespace eOkruh.Common.DataProcessing
         public static async Task SavePerson(MilitaryPerson person)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var personQuery = @"
-                MERGE (p:MilitaryPerson {FullName: $name})
+            var personQuery = $@"
+                MERGE (p:{nameof(MilitaryPerson)} {{FullName: $name}})
                 ON CREATE SET 
                     p.Rank = $rank, 
                     p.Specialities = $specialities, 
@@ -134,8 +134,8 @@ namespace eOkruh.Common.DataProcessing
         public static async Task SaveStructure(Structure structure)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var structureQuery = @"
-                MERGE (s:Structure {Name: $name})
+            var structureQuery = $@"
+                MERGE (s:{nameof(Structure)} {{Name: $name}})
                 ON CREATE SET 
                     s.Rank = $name, 
                     s.Type = $type, 
@@ -158,8 +158,8 @@ namespace eOkruh.Common.DataProcessing
         public static async Task UpdateStructure(Structure oldStructure, Structure newStructure)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (s:Structure {Name: $oldName})
+            var query = $@"
+                MATCH (s:{nameof(Structure)} {{Name: $oldName}})
                 SET s.Name = $newName, s.SpecialProperty = $newSpecialProperty
                 RETURN s";
             await session.ExecuteWriteAsync(async tx =>

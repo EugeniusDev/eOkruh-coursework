@@ -11,10 +11,10 @@ namespace eOkruh.Common.DataProcessing
                 MATCH (n:{nodeType} {{{nodeKeyProperty}: $propertyValue}})
                 RETURN count(n) > 0 AS nodeExists";
 
-            string trimmedValue = nodeKeyProperty.Trim();
+            string trimmedValue = nodeKeyPropValue.Trim();
             var result = await session.ExecuteReadAsync(async tx =>
             {
-                var resultCursor = await tx.RunAsync(query, new { trimmedValue });
+                var resultCursor = await tx.RunAsync(query, new { propertyValue = trimmedValue });
                 var record = await resultCursor.SingleAsync();
 
                 if (record != null)

@@ -16,8 +16,8 @@ namespace eOkruh.Common.DataProcessing
             }
             else
             {
-                throw new ArgumentException("Military personnel should be " +
-                    "registered in military base");
+                throw new ArgumentException("Особовий склад повинен бути приписаним " +
+                    "до певної військової частини");
             }
         }
         public static async Task MakeCommands(MilitaryPerson person, Structure structure)
@@ -25,8 +25,8 @@ namespace eOkruh.Common.DataProcessing
             if (person.IsOrdinary() && 
                 !(structure.IsBranch() || structure.IsPlatoon()))
             {
-                throw new ArgumentException("Ordinary personnel can command with " +
-                    "only branches or platoons");
+                throw new ArgumentException("Рядовий особовий склад може командувати " +
+                    "лише відділеннями та взводами");
             }
 
             await MakePersonToStructure(person, structure, NeoStrings.commandsRelation);
@@ -35,9 +35,10 @@ namespace eOkruh.Common.DataProcessing
         private static async Task MakePersonToStructure(MilitaryPerson person, Structure structure, string relationType)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (p:MilitaryPerson {FullName: $fullName}), (s:Structure {Name: $name})
-                CREATE (p)-[r:" + relationType + "]->(s)";
+            var query = $@"
+                MATCH (p:{nameof(MilitaryPerson)} {{FullName: $fullName}}), 
+                    (s:{nameof(Structure)} {{Name: $name}})
+                CREATE (p)-[r:{relationType}]->(s)";
 
             await session.ExecuteWriteAsync(async tx =>
             {
@@ -52,9 +53,9 @@ namespace eOkruh.Common.DataProcessing
         public static async Task MakeStructureInStructure(Structure childStructure, Structure parentStructure)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (s1:Structure {Name: $name1}), (s2:Structure {Name: $name2})
-                CREATE (s1)-[r:IS_PART_OF]->(s2)";
+            var query = $@"
+                MATCH (s1:{nameof(Structure)} {{Name: $name1}}), (s2:{nameof(Structure)} {{Name: $name2}})
+                CREATE (s1)-[r:{NeoStrings.IsPartOfRelation}]->(s2)";
 
             await session.ExecuteWriteAsync(async tx =>
             {

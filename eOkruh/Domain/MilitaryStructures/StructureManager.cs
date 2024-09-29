@@ -62,8 +62,8 @@ namespace eOkruh.Domain.MilitaryStructures
         public static async Task<ObservableCollection<Structure>> GetAllChildStructures(Structure parentStructure)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (n1:Structure {Name: $parentStructureName})<-[:IS_PART_OF*]-(n2:Structure)
+            var query = $@"
+                MATCH (n1:{nameof(Structure)} {{Name: $parentStructureName}})<-[:{NeoStrings.IsPartOfRelation}*]-(n2:{nameof(Structure)})
                 RETURN n2.Name AS Name, n2.Type AS Type, n2.SpecialProperty AS SP";
             ObservableCollection<Structure> childStructures = [];
             await session.ExecuteReadAsync(async tx =>
@@ -102,7 +102,7 @@ namespace eOkruh.Domain.MilitaryStructures
                     .typeStrings[StructureTypes.Platoon]);
         }
 
-        private static async Task<string> GetStructureType(string structureName)
+        public static async Task<string> GetStructureType(string structureName)
         {
             Structure structure = await NeoReader.GetStructure(structureName);
             return structure.Type;
