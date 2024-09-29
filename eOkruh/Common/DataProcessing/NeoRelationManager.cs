@@ -184,34 +184,6 @@ namespace eOkruh.Common.DataProcessing
 
             return objectsCollection;
         }
-        // not working because of properties difference (maybe)
-        //public static async Task<ObservableCollection<T>> GetRelatedObjectsOfType<T>(string label1, 
-        //    string property1Name, string property1Value, string relation)
-        //{
-        //    using var session = NeoAccessor.driver.AsyncSession();
-        //    var query = $@"
-        //        MATCH (n1:{label1} {{ {property1Name}: $property1Value }})
-        //        MATCH (n2:{nameof(T)})
-        //        WHERE ((n1)-[:{relation}]-(n2))
-        //        RETURN n2 AS nodes";
-
-        //    property1Value = property1Value.Trim();
-        //    var objects = await session.ExecuteReadAsync(async tx =>
-        //    {
-        //        var resultCursor = await tx.RunAsync(query, 
-        //            new { property1Value });
-        //        ObservableCollection<T> objectsCollection = [];
-
-        //        await resultCursor.ForEachAsync(record =>
-        //        {
-        //            objectsCollection.Add(record["nodes"].As<T>());
-        //        });
-
-        //        return objectsCollection;
-        //    });
-
-        //    return objects;
-        //}
         #endregion
     }
 }

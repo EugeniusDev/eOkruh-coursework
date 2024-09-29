@@ -112,11 +112,5 @@ namespace eOkruh.Domain.MilitaryStructures
         {
             await NeoSaver.UpdateStructure(oldStructure, newStructure);
         }
-
-        public static async Task<Structure> GetRelatedStructureWithType(Structure baseStructure, string wantedName, string wantedType)
-        {
-            throw new NotImplementedException();
-            // TODO somehow recursively search for wanted parentStructure
-        }
     }
 }

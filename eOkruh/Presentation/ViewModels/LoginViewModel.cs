@@ -45,6 +45,7 @@ namespace eOkruh.Presentation.ViewModels
         async Task TryLogin()
         {
             // Uncomment to refill database
+            //await NeoDeleter.DeleteMainDatabase();
             //await NeoFiller.CreateSampleData();
 
             ErrorsOutput = string.Empty;

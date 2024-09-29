@@ -3,6 +3,7 @@
     internal static class Strings
     {
         public static readonly string noData = "-";
+        public static readonly string secretData = "Приховано";
         public static readonly string separator = ", ";
         public static readonly string attention = "Увага!";
         public static readonly string cancel = "Скасувати";

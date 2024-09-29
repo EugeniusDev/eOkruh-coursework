@@ -94,7 +94,8 @@ namespace eOkruh.Domain.Personnel
                 return false;
             }
             if (string.IsNullOrWhiteSpace(person.Rank)
-                || person.Rank.Equals(Strings.noData))
+                || person.Rank.Equals(Strings.noData)
+                || !RankExists(person.Rank))
             {
                 errorMessage = "Будь ласка, оберіть коректне звання";
                 return false;
@@ -115,6 +116,17 @@ namespace eOkruh.Domain.Personnel
             errorMessage = string.Empty;
             return true;
         }
+        private static bool RankExists(string rank)
+        {
+            if (rank.Length < 2)
+            {
+                return false;
+            }
+            string correctRank = rank[0].ToString().ToUpper() + rank[1..];
+            return RankRepresentations.ordinaryStrings.ContainsValue(correctRank)
+                || RankRepresentations.sergeantStrings.ContainsValue(correctRank)
+                || RankRepresentations.officerStrings.ContainsValue(correctRank);
+        }
 
         public static async Task<ObservableCollection<FullPersonnelInfo>> GetAllInfos()
         {
@@ -122,13 +134,7 @@ namespace eOkruh.Domain.Personnel
             ObservableCollection<FullPersonnelInfo> allInfos = [];
             foreach (MilitaryPerson person in militaryPersons)
             {
-                allInfos.Add(new()
-                {
-                    MilitaryPerson = person,
-                    MilitaryBase = "-",
-                    StructuresUnderControl = "-",
-                });
-                //allInfos.Add(FormFullPersonnelInfo(person));
+                allInfos.Add(await FormFullPersonnelInfo(person));
             }
             return allInfos;
         }
@@ -151,7 +157,8 @@ namespace eOkruh.Domain.Personnel
         }
         public static async Task<ObservableCollection<FullPersonnelInfo>> GetInfosWithScope(string structureName)
         {
-            var filteredInfos = GetAllInfos().Result
+            var allInfos = await GetAllInfos();
+            var filteredInfos = allInfos
                 .Where(info => info.StructuresUnderControl
                     .Contains(structureName, StringComparison.CurrentCultureIgnoreCase));
             ObservableCollection<FullPersonnelInfo> scopedInfos = [.. filteredInfos];
@@ -171,7 +178,7 @@ namespace eOkruh.Domain.Personnel
                     .GetRelatedPersonsFor(new() { Name = childStructureName });
                 foreach (var person in relatedPersons)
                 {
-                    infos.Add(FormFullPersonnelInfo(person));
+                    infos.Add(await FormFullPersonnelInfo(person));
                 }
             }
             return infos;
@@ -198,11 +205,11 @@ namespace eOkruh.Domain.Personnel
             return [.. filteredInfos];
         }
 
-        public static FullPersonnelInfo FormFullPersonnelInfo(MilitaryPerson person)
+        public static async Task<FullPersonnelInfo> FormFullPersonnelInfo(MilitaryPerson person)
         {
-            string milBaseName = NeoRelationManager
-                .GetRelatedBaseFor(person).Result.Name;
-            var structuresUC = NeoRelationManager.GetStructuresUnderControlFor(person).Result;
+            var relatedBase = await NeoRelationManager.GetRelatedBaseFor(person);
+            string milBaseName = relatedBase.Name;
+            var structuresUC = await NeoRelationManager.GetStructuresUnderControlFor(person);
             string structuresUnderControlNames = structuresUC.Count == 0
                 ? Strings.noData : Strings.JoinWithComma(structuresUC.ToNames());
             return new()
