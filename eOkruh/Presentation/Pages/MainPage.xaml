@@ -9,12 +9,8 @@
             UnselectedTabColor="{StaticResource Black}"
             SelectedTabColor="{StaticResource Interactables}">
     <tabs:PersonnelTab BindingContext="{Binding PersonnelVm}" />
+    <tabs:StructuresTab BindingContext="{Binding StructuresVm}" />
     <ContentPage Title="Власність в/ч">
-        <VerticalStackLayout Margin="10" Spacing="20">
-            
-        </VerticalStackLayout>
-    </ContentPage>
-    <ContentPage Title="Дані про в/ч">
         <VerticalStackLayout Margin="10" Spacing="20">
             
         </VerticalStackLayout>

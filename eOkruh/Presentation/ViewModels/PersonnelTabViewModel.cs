@@ -78,6 +78,12 @@ namespace eOkruh.Presentation.ViewModels
         async Task PerformSearch()
         {
             SearchErrorMessage = string.Empty;
+            if (IsInEditingMode)
+            {
+                SearchErrorMessage = "Збережіть зміни, перш ніж шукати інформацію";
+                return;
+            }
+
             if (SearchTypePickerSelectedItem.Equals(SearchTypePickerItems[2]))
             {
                 await SearchForAllPersonnelInfos();
@@ -87,10 +93,6 @@ namespace eOkruh.Presentation.ViewModels
             if (!AreSearchRequiredFieldsFilled())
             {
                 return;
-            }
-            if (IsInEditingMode)
-            {
-                SearchErrorMessage = "Збережіть зміни, перш ніж шукати інформацію";
             }
 
             if (IsSecondarySearchBarRequired())

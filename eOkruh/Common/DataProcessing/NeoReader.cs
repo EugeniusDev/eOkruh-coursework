@@ -13,8 +13,8 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o =>
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MATCH (u:User {Login: $login})
+            var query = $@"
+                MATCH (u:{nameof(User)} {{Login: $login}})
                 RETURN u.FullName as FullName, u.Login as Login, u.Password as Password, u.UserRole as UserRole";
 
             var result = await session.ExecuteReadAsync(async session =>
@@ -43,8 +43,8 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o =>
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MATCH (u:User {Login: $login, Password: $password})
+            var query = $@"
+                MATCH (u:{nameof(User)} {{Login: $login, Password: $password}})
                 RETURN u.FullName as FullName, u.Login as Login, u.Password as Password, u.UserRole as UserRole";
 
             var result = await session.ExecuteReadAsync(async session =>
@@ -73,8 +73,8 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o =>
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MATCH (u:User)
+            var query = $@"
+                MATCH (u:{nameof(User)})
                 RETURN u.FullName AS FullName";
 
             var fullNames = await session.ExecuteReadAsync(async tx =>
@@ -97,9 +97,9 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession(o =>
                 o.WithDatabase(NeoStrings.userDatabase));
-            var query = @"
-                MATCH (u:User {FullName: $userFullName})
-                OPTIONAL MATCH (u)-[r:ASSIGNED_BY]->(a:User)
+            var query = $@"
+                MATCH (u:{nameof(User)} {{FullName: $userFullName}})
+                OPTIONAL MATCH (u)-[r:{NeoStrings.assignedByRelation}]->(a:{nameof(User)})
                 RETURN u.FullName AS FullName, u.Login AS Login, u.Password AS Password,
                        u.UserRole AS UserRole, u.DateOfLogin AS DateOfLogin,
                        a.FullName AS AssigneeFullName, r.assignedDate AS AssigningDate";
@@ -143,10 +143,10 @@ namespace eOkruh.Common.DataProcessing
                 RETURN n.FullName AS FullName, n.Rank AS Rank,
                 n.Specialities AS Specialities, n.SpecialProperty1 AS SP1, n.SpecialProperty2 AS SP2";
 
-            var objects = await session.ExecuteReadAsync(async tx =>
+            ObservableCollection<MilitaryPerson> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
             {
                 var resultCursor = await tx.RunAsync(query);
-                ObservableCollection<MilitaryPerson> objectsCollection = [];
 
                 await resultCursor.ForEachAsync(record =>
                 {
@@ -159,22 +159,19 @@ namespace eOkruh.Common.DataProcessing
                         SpecialProperty2 = record["SP2"].As<string>(),
                     });
                 });
-
-                return objectsCollection;
             });
 
-            return objects;
+            return objectsCollection;
         }
         #endregion
         #region Structures
         public static async Task<Structure> GetStructure(string name)
         {
             using var session = NeoAccessor.driver.AsyncSession();
-            var query = @"
-                MATCH (s:Structure {Name: $name})
-                OPTIONAL MATCH (s)-[:IS_PART_OF]->(ancS:Structure)
-                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SpecialProperty,
-                COALESCE(ancS.Name, $noData) AS AncestorStructureName";
+            var query = $@"
+                MATCH (s:{nameof(Structure)} {{Name: $name}})
+                OPTIONAL MATCH (s)-[:{NeoStrings.IsPartOfRelation}]->(ancS:{nameof(Structure)})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SpecialProperty";
 
             var result = await session.ExecuteReadAsync(async tx =>
             {
@@ -187,8 +184,7 @@ namespace eOkruh.Common.DataProcessing
                     {
                         Name = record["Name"].As<string>(),
                         Type = record["Type"].As<string>(),
-                        SpecialProperty = record["SpecialProperty"].As<string>(),
-                        AncestorStructureName = record["AncestorStructureName"].As<string>()
+                        SpecialProperty = record["SpecialProperty"].As<string>()
                     };
 
                     return structure;
@@ -199,6 +195,88 @@ namespace eOkruh.Common.DataProcessing
 
             return result ?? throw new ArgumentException("Вказаної структури не існує");
         }
+
+        public static async Task<ObservableCollection<Structure>> GetAllStructures()
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Structure)})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SP ";
+
+            ObservableCollection<Structure> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query);
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty = record["SP"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+
+        public static async Task<ObservableCollection<Structure>> GetAllStructuresOfType(string structureType)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Structure)} {{Type: $type}})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SP ";
+
+            ObservableCollection<Structure> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query, new { type = structureType });
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty = record["SP"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+
+        public static async Task<StructuresTab3PropsDto> GetBasesCountInfoFor(Structure structure)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s1:{nameof(Structure)} {{Name: $name}})
+                OPTIONAL MATCH (s1)<-[r:{NeoStrings.IsPartOfRelation}]-(s2:{nameof(Structure)})
+                RETURN s1.Name AS Name, s1.Type AS Type, COUNT(r) AS BaseCount";
+
+            var structureData = new StructuresTab3PropsDto();
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query, new { name = structure.Name });
+                var record = await resultCursor.SingleAsync();
+
+                if (record != null)
+                {
+                    structureData = new()
+                    {
+                        Prop1 = record["Name"].As<string>(),
+                        Prop2 = record["Type"].As<string>(),
+                        Prop3 = record["BaseCount"].As<int>().ToString()
+                    };
+                }
+            });
+
+            return structureData;
+        }
+
+        
         #endregion
     }
 }

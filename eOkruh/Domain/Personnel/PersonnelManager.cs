@@ -95,7 +95,7 @@ namespace eOkruh.Domain.Personnel
             }
             if (string.IsNullOrWhiteSpace(person.Rank)
                 || person.Rank.Equals(Strings.noData)
-                || !RankExists(person.Rank))
+                || !IsRankValid(person.Rank))
             {
                 errorMessage = "Будь ласка, оберіть коректне звання";
                 return false;
@@ -116,16 +116,11 @@ namespace eOkruh.Domain.Personnel
             errorMessage = string.Empty;
             return true;
         }
-        private static bool RankExists(string rank)
+
+        private static bool IsRankValid(string rank)
         {
-            if (rank.Length < 2)
-            {
-                return false;
-            }
-            string correctRank = rank[0].ToString().ToUpper() + rank[1..];
-            return RankRepresentations.ordinaryStrings.ContainsValue(correctRank)
-                || RankRepresentations.sergeantStrings.ContainsValue(correctRank)
-                || RankRepresentations.officerStrings.ContainsValue(correctRank);
+            return rank.Length > 2
+                && allRanks.Contains(rank.CapitalizeFirstLetter());
         }
 
         public static async Task<ObservableCollection<FullPersonnelInfo>> GetAllInfos()
@@ -186,7 +181,7 @@ namespace eOkruh.Domain.Personnel
 
         public static async Task<List<string>> GetChildStructureNamesOf(string structureName)
         {
-            var childStructures = await StructureManager.GetAllChildStructures(
+            var childStructures = await NeoRelationManager.GetAllChildStructures(
                 new() { Name = structureName });
             return [.. childStructures.ToNames()];
         }
@@ -227,7 +222,7 @@ namespace eOkruh.Domain.Personnel
             {
                 names.Add(structure.Name);
             }
-            return [.. names];
+            return [..names];
         }
 
         public static async Task SavePersonnelInfo(FullPersonnelInfo info)

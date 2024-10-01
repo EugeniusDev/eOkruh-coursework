@@ -137,11 +137,10 @@ namespace eOkruh.Common.DataProcessing
             var structureQuery = $@"
                 MERGE (s:{nameof(Structure)} {{Name: $name}})
                 ON CREATE SET 
-                    s.Rank = $name, 
+                    s.Name = $name, 
                     s.Type = $type, 
                     s.SpecialProperty = $SP
                 ON MATCH SET 
-                    s.Rank = $name, 
                     s.Type = $type, 
                     s.SpecialProperty = $SP";
             await session.ExecuteWriteAsync(async tx =>
@@ -151,24 +150,6 @@ namespace eOkruh.Common.DataProcessing
                     name = structure.Name.Trim(),
                     type = structure.Type,
                     SP = structure.SpecialProperty.Trim()
-                });
-            });
-        }
-
-        public static async Task UpdateStructure(Structure oldStructure, Structure newStructure)
-        {
-            using var session = NeoAccessor.driver.AsyncSession();
-            var query = $@"
-                MATCH (s:{nameof(Structure)} {{Name: $oldName}})
-                SET s.Name = $newName, s.SpecialProperty = $newSpecialProperty
-                RETURN s";
-            await session.ExecuteWriteAsync(async tx =>
-            {
-                await tx.RunAsync(query, new
-                {
-                    oldName = oldStructure.Name.Trim(),
-                    newName = newStructure.Name.Trim(),
-                    newSpecialProperty = newStructure.SpecialProperty.Trim()
                 });
             });
         }

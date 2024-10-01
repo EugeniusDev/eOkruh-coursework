@@ -155,6 +155,32 @@ namespace eOkruh.Common.DataProcessing
 
             return structures;
         }
+
+        public static async Task<ObservableCollection<Structure>> GetAllChildStructures(Structure parentStructure)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (n1:{nameof(Structure)} {{Name: $parentStructureName}})<-[:{NeoStrings.IsPartOfRelation}*]-(n2:{nameof(Structure)})
+                RETURN n2.Name AS Name, n2.Type AS Type, n2.SpecialProperty AS SP";
+            ObservableCollection<Structure> childStructures = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { parentStructureName = parentStructure.Name });
+                await resultCursor.ForEachAsync(record =>
+                {
+                    childStructures.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty = record["SP"].As<string>()
+                    });
+                });
+            });
+
+            return childStructures;
+        }
+
         public static async Task<ObservableCollection<MilitaryPerson>> GetRelatedPersonsFor(Structure structure)
         {
             using var session = NeoAccessor.driver.AsyncSession();
@@ -184,6 +210,71 @@ namespace eOkruh.Common.DataProcessing
             });
 
             return objectsCollection;
+        }
+
+        public static async Task<MilitaryPerson> GetBaseCommander(Structure milBase)
+        {
+            if (!milBase.IsBase())
+            {
+                throw new ArgumentException("Вкажіть структуру, яка є військовою частиною");
+            }
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (n1:{nameof(Structure)} {{ Name: $name }})
+                MATCH (n2:{nameof(MilitaryPerson)})
+                WHERE ((n1)<-[:{NeoStrings.commandsRelation}]-(n2))
+                RETURN n2.FullName AS commanderFullName, n2.Rank AS Rank,
+                n2.Specialities AS Specialities, n2.SpecialProperty1 AS SP1, n2.SpecialProperty2 AS SP2";
+            MilitaryPerson baseCommander = new();
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { name = milBase.Name });
+
+                var record = await resultCursor.SingleAsync();
+                if (record != null)
+                {
+                    baseCommander = new()
+                    {
+                        FullName = record["commanderFullName"].As<string>(),
+                        Rank = record["Rank"].As<string>(),
+                        Specialities = record["Specialities"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>(),
+                    };
+                }
+            });
+
+            return baseCommander;
+        }
+
+        public static async Task<Structure> GetAncestoryStructureFor(Structure structure)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (n1:{nameof(Structure)} {{ Name: $name }})
+                MATCH (n2:{nameof(Structure)})
+                WHERE ((n1)-[:{NeoStrings.IsPartOfRelation}]->(n2))
+                RETURN n2.Name AS Name, n2.Type AS Type, n2.SpecialProperty AS SP";
+            Structure ancestoryStructure = new();
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { name = structure.Name });
+
+                var record = await resultCursor.SingleAsync();
+                if (record != null)
+                {
+                    ancestoryStructure = new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty = record["SP"].As<string>()
+                    };
+                }
+            });
+
+            return ancestoryStructure;
         }
         #endregion
     }

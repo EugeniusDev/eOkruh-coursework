@@ -10,6 +10,7 @@
         public static readonly string confirm = "Зроз, добре";
         public static readonly string edit = "Редагувати";
         public static readonly string save = "Зберегти";
+        public static readonly string zero = "0";
 
         public static string[] SplitByComma(string input)
         {
@@ -19,6 +20,11 @@
         public static string JoinWithComma(string[] input)
         {
             return string.Join(separator, input);
+        }
+
+        public static string CapitalizeFirstLetter(this string input)
+        {
+            return input[0].ToString().ToUpper() + input[1..];
         }
     }
 }

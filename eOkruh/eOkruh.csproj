@@ -93,6 +93,9 @@
 	  <MauiXaml Update="Presentation\Pages\Tabs\PersonnelTab.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Pages\Tabs\StructuresTab.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Pages\Tabs\UsersTab.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

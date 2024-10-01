@@ -12,17 +12,17 @@ namespace eOkruh.Presentation.ViewModels
         [ObservableProperty]
         PersonnelTabViewModel? personnelVm;
         [ObservableProperty]
-        BasePropertyTabViewModel? basePropertyVm;
+        StructuresTabViewModel? structuresVm;
         [ObservableProperty]
-        BaseDataTabViewModel? baseDataVm;
+        BasePropertyTabViewModel? basePropertyVm;
         [ObservableProperty]
         UsersTabViewModel? usersVm;
 
         public void ConfigureViewModel()
         {
             PersonnelVm = new(User);
+            StructuresVm = new(User);
             BasePropertyVm = new(User);
-            BaseDataVm = new(User);
             UsersVm = new(User);
         }
     }
