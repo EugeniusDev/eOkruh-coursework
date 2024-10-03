@@ -10,6 +10,7 @@
         public static readonly string assignedByRelation = "ASSIGNED_BY";
         public static readonly string commandsRelation = "COMMANDS";
         public static readonly string registeredInRelation = "REGISTERED_IN";
-        public static readonly string IsPartOfRelation = "IS_PART_OF";
+        public static readonly string isPartOfRelation = "IS_PART_OF";
+        public static readonly string hasRelation = "HAS";
     }
 }

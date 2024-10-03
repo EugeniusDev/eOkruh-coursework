@@ -10,10 +10,6 @@
             SelectedTabColor="{StaticResource Interactables}">
     <tabs:PersonnelTab BindingContext="{Binding PersonnelVm}" />
     <tabs:StructuresTab BindingContext="{Binding StructuresVm}" />
-    <ContentPage Title="Власність в/ч">
-        <VerticalStackLayout Margin="10" Spacing="20">
-            
-        </VerticalStackLayout>
-    </ContentPage>
+    <tabs:PropertyTab BindingContext="{Binding PropertyVm}" />
     <tabs:UsersTab BindingContext="{Binding UsersVm}" />
 </TabbedPage>

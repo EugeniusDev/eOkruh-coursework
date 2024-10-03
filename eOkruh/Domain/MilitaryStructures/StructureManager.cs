@@ -137,7 +137,7 @@ namespace eOkruh.Domain.MilitaryStructures
             foreach (string type in baseContainingStructureTypes)
             {
                 List<StructuresTab3PropsDto> currentStructures = [];
-                var typedStructures = await NeoReader.GetAllStructuresOfType(type);
+                var typedStructures = await NeoReader.GetStructuresOfType(type);
                 foreach (Structure structure in typedStructures)
                 {
                     var info = await NeoReader.GetBasesCountInfoFor(structure);
@@ -165,7 +165,7 @@ namespace eOkruh.Domain.MilitaryStructures
 
         public static async Task<ObservableCollection<StructuresTab3PropsDto>> SearchForAllBasesWithCommmanders()
         {
-            var milBases = await NeoReader.GetAllStructuresOfType(StructureTypeStringPairs
+            var milBases = await NeoReader.GetStructuresOfType(StructureTypeStringPairs
                     .typeStrings[StructureTypes.Base]);
             ObservableCollection<StructuresTab3PropsDto> baseInfos = [];
             foreach (var baseStructure in milBases)
@@ -191,7 +191,7 @@ namespace eOkruh.Domain.MilitaryStructures
         private static async Task<ObservableCollection<StructuresTab3PropsDto>> GetBasesChildStructuresCountInfos()
         {
             var milBases = await NeoReader
-                .GetAllStructuresOfType(StructureTypeStringPairs
+                .GetStructuresOfType(StructureTypeStringPairs
                     .typeStrings[StructureTypes.Base]);
             ObservableCollection<StructuresTab3PropsDto> baseInfos = [];
             foreach (var baseStructure in milBases)

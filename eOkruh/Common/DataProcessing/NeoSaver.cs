@@ -1,6 +1,7 @@
 ﻿using eOkruh.Common.UserManagement;
 using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Personnel;
+using eOkruh.Domain.Property;
 
 namespace eOkruh.Common.DataProcessing
 {
@@ -150,6 +151,44 @@ namespace eOkruh.Common.DataProcessing
                     name = structure.Name.Trim(),
                     type = structure.Type,
                     SP = structure.SpecialProperty.Trim()
+                });
+            });
+        }
+        #endregion
+
+        #region Property
+        public static async Task SaveWeapon(Weapon weapon)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var weaponQuery = $@"
+                CREATE (w:{nameof(Weapon)} {{Name: $name, Type: $type, SpecialProperty1: $SP1, SpecialProperty2: $SP2}})";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(weaponQuery, new
+                {
+                    name = weapon.Name.Trim(),
+                    type = weapon.Type,
+                    SP1 = weapon.SpecialProperty1.Trim(),
+                    SP2 = weapon.SpecialProperty2.Trim()
+                });
+            });
+        }
+
+        public static async Task SaveEquipment(Equipment equipment)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var equipmentQuery = $@"
+                CREATE (e:{nameof(Equipment)} {{Name: $name, Type: $type, SpecialProperty1: $SP1, SpecialProperty2: $SP2}})";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(equipmentQuery, new
+                {
+                    name = equipment.Name.Trim(),
+                    type = equipment.Type,
+                    SP1 = equipment.SpecialProperty1.Trim(),
+                    SP2 = equipment.SpecialProperty2.Trim()
                 });
             });
         }

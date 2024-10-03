@@ -1,6 +1,7 @@
 ﻿using eOkruh.Common.UserManagement;
 using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Personnel;
+using eOkruh.Domain.Property;
 using Neo4j.Driver;
 using System.Collections.ObjectModel;
 
@@ -164,13 +165,14 @@ namespace eOkruh.Common.DataProcessing
             return objectsCollection;
         }
         #endregion
+
         #region Structures
         public static async Task<Structure> GetStructure(string name)
         {
             using var session = NeoAccessor.driver.AsyncSession();
             var query = $@"
                 MATCH (s:{nameof(Structure)} {{Name: $name}})
-                OPTIONAL MATCH (s)-[:{NeoStrings.IsPartOfRelation}]->(ancS:{nameof(Structure)})
+                OPTIONAL MATCH (s)-[:{NeoStrings.isPartOfRelation}]->(ancS:{nameof(Structure)})
                 RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SpecialProperty";
 
             var result = await session.ExecuteReadAsync(async tx =>
@@ -201,7 +203,7 @@ namespace eOkruh.Common.DataProcessing
             using var session = NeoAccessor.driver.AsyncSession();
             var query = $@"
                 MATCH (s:{nameof(Structure)})
-                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SP ";
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SP";
 
             ObservableCollection<Structure> objectsCollection = [];
             await session.ExecuteReadAsync(async tx =>
@@ -222,12 +224,12 @@ namespace eOkruh.Common.DataProcessing
             return objectsCollection;
         }
 
-        public static async Task<ObservableCollection<Structure>> GetAllStructuresOfType(string structureType)
+        public static async Task<ObservableCollection<Structure>> GetStructuresOfType(string structureType)
         {
             using var session = NeoAccessor.driver.AsyncSession();
             var query = $@"
                 MATCH (s:{nameof(Structure)} {{Type: $type}})
-                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SP ";
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty AS SP";
 
             ObservableCollection<Structure> objectsCollection = [];
             await session.ExecuteReadAsync(async tx =>
@@ -253,7 +255,7 @@ namespace eOkruh.Common.DataProcessing
             using var session = NeoAccessor.driver.AsyncSession();
             var query = $@"
                 MATCH (s1:{nameof(Structure)} {{Name: $name}})
-                OPTIONAL MATCH (s1)<-[r:{NeoStrings.IsPartOfRelation}]-(s2:{nameof(Structure)})
+                OPTIONAL MATCH (s1)<-[r:{NeoStrings.isPartOfRelation}]-(s2:{nameof(Structure)})
                 RETURN s1.Name AS Name, s1.Type AS Type, COUNT(r) AS BaseCount";
 
             var structureData = new StructuresTab3PropsDto();
@@ -275,8 +277,115 @@ namespace eOkruh.Common.DataProcessing
 
             return structureData;
         }
+        #endregion
 
-        
+        #region Property
+        public static async Task<ObservableCollection<Weapon>> GetAllWeapons()
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Weapon)})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty1 AS SP1, s.SpecialProperty2 AS SP2";
+
+            ObservableCollection<Weapon> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query);
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+        public static async Task<ObservableCollection<Weapon>> GetWeaponsWithType(string wantedType)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Weapon)} {{Type: $type}})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty1 AS SP1, s.SpecialProperty2 AS SP2";
+
+            ObservableCollection<Weapon> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query, new { type = wantedType });
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+
+        public static async Task<ObservableCollection<Equipment>> GetAllEquipment()
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Equipment)})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty1 AS SP1, s.SpecialProperty2 AS SP2";
+
+            ObservableCollection<Equipment> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query);
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+        public static async Task<ObservableCollection<Equipment>> GetEquipmentWithType(string wantedType)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Equipment)} {{Type: $type}})
+                RETURN s.Name AS Name, s.Type AS Type, s.SpecialProperty1 AS SP1, s.SpecialProperty2 AS SP2";
+
+            ObservableCollection<Equipment> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query, new { type = wantedType });
+
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+
         #endregion
     }
 }

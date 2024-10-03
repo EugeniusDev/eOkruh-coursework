@@ -1,5 +1,6 @@
 ﻿using eOkruh.Common.UserManagement;
 using eOkruh.Domain.Personnel;
+using eOkruh.Domain.Property;
 using Neo4j.Driver;
 
 namespace eOkruh.Common.DataProcessing
@@ -31,6 +32,31 @@ namespace eOkruh.Common.DataProcessing
             await session.ExecuteWriteAsync(async tx =>
             {
                 await tx.RunAsync(query, new { fullName = person.FullName.Trim() });
+            });
+        }
+
+        public static async Task DeleteWeapon(Weapon weapon)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (p:{nameof(Weapon)} {{Name: $name}})
+                DETACH DELETE p";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query, new { name = weapon.Name });
+            });
+        }
+        public static async Task DeleteEquipment(Equipment equipment)
+        {
+             using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (p:{nameof(Equipment)} {{Name: $name}})
+                DETACH DELETE p";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query, new { name = equipment.Name });
             });
         }
 

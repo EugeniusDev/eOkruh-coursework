@@ -34,5 +34,9 @@ namespace eOkruh.Domain.MilitaryStructures
             return Type.Equals(StructureTypeStringPairs
                 .typeStrings[StructureTypes.Base]);
         }
+        public bool CanHaveProperty()
+        {
+            return IsBranch() || IsPlatoon() || IsCompany();
+        }
     }
 }

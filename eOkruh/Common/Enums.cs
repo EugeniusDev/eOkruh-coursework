@@ -46,6 +46,32 @@
         Army
     }
 
+    public enum WeaponTypes : ushort
+    {
+        AssaultRifle,
+        SniperRifle,
+        AntitankRocketComplex,
+        GrenadeLauncher,
+        Mortar,
+        Artillery,
+        BallisticMissile,
+        WingedMissile,
+        ReactiveVolleyFireSystem,
+        ShockUAV
+    }
+    public enum EquipmentTypes : ushort
+    {
+        Tank,
+        ArmoredTransporter,
+        InfantryBattleVehicle,
+        EasyArmoredVehicle,
+        Helicopter,
+        FighterJet,
+        ReconnaissanceUAV,
+        GroundUV,
+        AntiAircraftMissileComplex
+    }
+
     public enum UserRoles : ushort
     {
         Viewer,

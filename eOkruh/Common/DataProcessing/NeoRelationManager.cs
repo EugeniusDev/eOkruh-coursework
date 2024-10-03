@@ -1,5 +1,6 @@
 ﻿using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Personnel;
+using eOkruh.Domain.Property;
 using Neo4j.Driver;
 using System.Collections.ObjectModel;
 
@@ -55,7 +56,7 @@ namespace eOkruh.Common.DataProcessing
             using var session = NeoAccessor.driver.AsyncSession();
             var query = $@"
                 MATCH (s1:{nameof(Structure)} {{Name: $name1}}), (s2:{nameof(Structure)} {{Name: $name2}})
-                CREATE (s1)-[r:{NeoStrings.IsPartOfRelation}]->(s2)";
+                CREATE (s1)-[r:{NeoStrings.isPartOfRelation}]->(s2)";
 
             await session.ExecuteWriteAsync(async tx =>
             {
@@ -63,6 +64,33 @@ namespace eOkruh.Common.DataProcessing
                 {
                     name1 = childStructure.Name.Trim(),
                     name2 = parentStructure.Name.Trim()
+                });
+            });
+        }
+
+        public static async Task MakeHasProperty(Structure structure, Property property)
+        {
+            string propertyNodeName;
+            if (property is Weapon)
+            {
+                propertyNodeName = nameof(Weapon);
+            }
+            else
+            {
+                propertyNodeName = nameof(Equipment);
+            }
+
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (s:{nameof(Structure)} {{Name: $structureName}}), (p:{propertyNodeName} {{Name: $propertyName}})
+                CREATE (s)-[r:{NeoStrings.hasRelation}]->(p)";
+
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(query, new
+                {
+                    structureName = structure.Name.Trim(),
+                    propertyName = property.Name.Trim()
                 });
             });
         }
@@ -160,7 +188,7 @@ namespace eOkruh.Common.DataProcessing
         {
             using var session = NeoAccessor.driver.AsyncSession();
             var query = $@"
-                MATCH (n1:{nameof(Structure)} {{Name: $parentStructureName}})<-[:{NeoStrings.IsPartOfRelation}*]-(n2:{nameof(Structure)})
+                MATCH (n1:{nameof(Structure)} {{Name: $parentStructureName}})<-[:{NeoStrings.isPartOfRelation}*]-(n2:{nameof(Structure)})
                 RETURN n2.Name AS Name, n2.Type AS Type, n2.SpecialProperty AS SP";
             ObservableCollection<Structure> childStructures = [];
             await session.ExecuteReadAsync(async tx =>
@@ -254,7 +282,7 @@ namespace eOkruh.Common.DataProcessing
             var query = $@"
                 MATCH (n1:{nameof(Structure)} {{ Name: $name }})
                 MATCH (n2:{nameof(Structure)})
-                WHERE ((n1)-[:{NeoStrings.IsPartOfRelation}]->(n2))
+                WHERE ((n1)-[:{NeoStrings.isPartOfRelation}]->(n2))
                 RETURN n2.Name AS Name, n2.Type AS Type, n2.SpecialProperty AS SP";
             Structure ancestoryStructure = new();
             await session.ExecuteReadAsync(async tx =>
@@ -275,6 +303,140 @@ namespace eOkruh.Common.DataProcessing
             });
 
             return ancestoryStructure;
+        }
+
+        public static async Task<ObservableCollection<Structure>> GetMasterStructuresFor(Property property)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            string propertyNodeName = property is Weapon ? nameof(Weapon) : nameof(Equipment);
+            var query = $@"
+                MATCH (n1:{propertyNodeName} {{ Name: $name }})
+                MATCH (n2:{nameof(Structure)})
+                WHERE ((n1)<-[:{NeoStrings.hasRelation}]-(n2))
+                RETURN n2.Name AS Name, n2.Type AS Type, n2.SpecialProperty AS SP";
+
+            ObservableCollection<Structure> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { name = property.Name });
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty = record["SP"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+
+        public static async Task<ObservableCollection<Weapon>> GetStructureOwnedWeaponsOfType(Structure structure, string wpType)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (n1:{nameof(Weapon)} {{Type: $type}})
+                MATCH (n2:{nameof(Structure)} {{ Name: $name }})
+                WHERE ((n1)<-[:{NeoStrings.hasRelation}]-(n2))
+                RETURN n1.Name AS Name, n1.Type AS Type, n1.SpecialProperty1 AS SP1, n1.SpecialProperty2 AS SP2";
+
+            ObservableCollection<Weapon> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { type = wpType, name = structure.Name });
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+        public static async Task<ObservableCollection<Equipment>> GetStructureOwnedEquipmentOfType(Structure structure, string eqType)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            var query = $@"
+                MATCH (n1:{nameof(Equipment)} {{Type: $type}})
+                MATCH (n2:{nameof(Structure)} {{ Name: $name }})
+                WHERE ((n1)<-[:{NeoStrings.hasRelation}]-(n2))
+                RETURN n1.Name AS Name, n1.Type AS Type, n1.SpecialProperty1 AS SP1, n1.SpecialProperty2 AS SP2";
+
+            ObservableCollection<Equipment> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { type = eqType, name = structure.Name });
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(new()
+                    {
+                        Name = record["Name"].As<string>(),
+                        Type = record["Type"].As<string>(),
+                        SpecialProperty1 = record["SP1"].As<string>(),
+                        SpecialProperty2 = record["SP2"].As<string>()
+                    });
+                });
+            });
+
+            return objectsCollection;
+        }
+
+        public static async Task<List<(string, string, int)>> GetTuplesWithBasesAndOwnedPropertyCount(string propertyName)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            string parentStructureType = StructureTypeStringPairs.typeStrings[StructureTypes.Base];
+            var query = $@"
+                MATCH (property:{propertyName})<-[:{NeoStrings.hasRelation}]-(structure:{nameof(Structure)})-[:{NeoStrings.isPartOfRelation}*]->(parentStructure:{nameof(Structure)} {{Type: $parentType}})
+                WITH parentStructure, property.Type AS propertyType, COUNT(property) AS propertyCount
+                RETURN parentStructure.Name AS containingBaseName, propertyType, SUM(propertyCount) AS totalPropertyCount";
+
+            List<(string, string, int)> tuplesCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query, new { parentType = parentStructureType });
+                await resultCursor.ForEachAsync(record =>
+                {
+                    tuplesCollection.Add((
+                        record["containingBaseName"].As<string>(),
+                        record["propertyType"].As<string>(),
+                        record["totalPropertyCount"].As<int>()
+                        ));
+                });
+            });
+
+            return tuplesCollection;
+        }
+
+        public static async Task<IEnumerable<string>> GetBasesContainingPropertyOfType(string propertyName, string propertyType)
+        {
+            using var session = NeoAccessor.driver.AsyncSession();
+            string parentStructureType = StructureTypeStringPairs.typeStrings[StructureTypes.Base];
+            var query = $@"
+                MATCH (w:{propertyName} {{Type: $type}})<-[:HAS]-(structure:Structure)-[:IS_PART_OF*]->(parentBase:Structure {{Type: $parentType}})
+                RETURN parentBase.Name AS baseName";
+
+            List<string> objectsCollection = [];
+            await session.ExecuteReadAsync(async tx =>
+            {
+                var resultCursor = await tx.RunAsync(query,
+                    new { type = propertyType, parentType = parentStructureType });
+                await resultCursor.ForEachAsync(record =>
+                {
+                    objectsCollection.Add(record["baseName"].As<string>());
+                });
+            });
+
+            return objectsCollection.Distinct();
         }
         #endregion
     }

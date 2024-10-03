@@ -14,7 +14,7 @@ namespace eOkruh.Presentation.ViewModels
         [ObservableProperty]
         StructuresTabViewModel? structuresVm;
         [ObservableProperty]
-        BasePropertyTabViewModel? basePropertyVm;
+        PropertyTabViewModel? propertyVm;
         [ObservableProperty]
         UsersTabViewModel? usersVm;
 
@@ -22,7 +22,7 @@ namespace eOkruh.Presentation.ViewModels
         {
             PersonnelVm = new(User);
             StructuresVm = new(User);
-            BasePropertyVm = new(User);
+            PropertyVm = new(User);
             UsersVm = new(User);
         }
     }
