@@ -223,6 +223,18 @@ namespace eOkruh.Presentation.ViewModels
                 IsInEditingMode = true;
             }
         }
+
+        [RelayCommand]
+        async Task DeletePerson(FullPersonnelInfo info)
+        {
+            if (IsInEditingMode)
+            {
+                return;
+            }
+
+            await NeoDeleter.DeleteMilitaryPerson(info.MilitaryPerson);
+            PersonnelInfos.Remove(info);
+        }
         #endregion
 
         #region Adding new personnel

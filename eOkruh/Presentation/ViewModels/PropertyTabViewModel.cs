@@ -1,9 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using eOkruh.Common;
 using eOkruh.Common.DataProcessing;
 using eOkruh.Common.UserManagement;
-using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Property;
 using System.Collections.ObjectModel;
 

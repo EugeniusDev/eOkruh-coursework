@@ -96,6 +96,7 @@ namespace eOkruh.Presentation.ViewModels
             {
                 UserToUpdate.UserRole = UpdatingUserRoleSelectedOption;
                 await NeoSaver.SaveUserWithAssignee(UserToUpdate, User);
+                UserToUpdate = new();
                 if (User.IsOwner())
                 {
                     await PopulateFullUserInfos();

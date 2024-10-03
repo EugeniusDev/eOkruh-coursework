@@ -40,7 +40,7 @@
                     <VerticalStackLayout Spacing="1">
                         <!-- Headers -->
                         <Frame Padding="0" Margin="6,0" CornerRadius="8">
-                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="0">
+                            <Grid ColumnDefinitions="*,*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="0">
                                 <Label Text="ПІБ" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
                                 <Label Text="Звання" Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
                                 <Label Text="Спеціальності" Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" />
@@ -65,7 +65,7 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="{x:Type personnel:FullPersonnelInfo}">
                                         <Frame Padding="0" CornerRadius="8">
-                                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="1">
+                                            <Grid ColumnDefinitions="*,*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="1">
                                                 <Label Text="{Binding MilitaryPerson.FullName}" 
                                                        Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                                 <Editor Text="{Binding MilitaryPerson.Rank}" 
@@ -90,8 +90,14 @@
                                                        Grid.Column="5" HorizontalOptions="Center" VerticalOptions="Center" />
                                                 <Entry Text="{Binding MilitaryPerson.SpecialProperty2}" 
                                                        IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
-                                                            Path=IsInEditingMode}"                            
+                                                            Path=IsInEditingMode}"            
                                                        Grid.Column="6" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Button Text="Видалити" Grid.Column="7" HorizontalOptions="Center" VerticalOptions="Center"
+                                                        IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=CanEdit}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:PersonnelTabViewModel}},
+                                                            Path=DeletePersonCommand}"
+                                                        CommandParameter="{Binding .}" />
                                             </Grid>
                                         </Frame>
                                     </DataTemplate>

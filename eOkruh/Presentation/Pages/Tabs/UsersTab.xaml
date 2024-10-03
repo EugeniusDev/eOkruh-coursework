@@ -90,12 +90,12 @@
                         <!-- Content -->
                         <ScrollView MaximumHeightRequest="350">
                             <CollectionView ItemsSource="{Binding FullUserInfos}" 
-                                EmptyView="Помилка, не знайдено жодного користувача">
+                                EmptyView="У доступі відмовлено">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="{x:Type userManagement:FullUserInfo}">
                                         <Frame Padding="0" Margin="0" CornerRadius="8">
                                             <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="1" RowSpacing="1">
-                                                <Label Text="{Binding User.FullName}" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                <Label Text="{Binding User.FullName}" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
                                                 <Label Text="{Binding User.UserRole}" Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" />
                                                 <Label Text="{Binding User.DateOfLogin}" Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" />
                                                 <Label Text="{Binding AssigneeFullName}" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Center" />
