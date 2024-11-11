@@ -1,5 +1,4 @@
-﻿
-namespace eOkruh.Domain.Property
+﻿namespace eOkruh.Domain.Property
 {
     public class PropertyDto
     {

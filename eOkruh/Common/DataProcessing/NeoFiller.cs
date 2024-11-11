@@ -1,8 +1,6 @@
 ﻿using eOkruh.Domain.MilitaryStructures;
 using eOkruh.Domain.Personnel;
 using eOkruh.Domain.Property;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace eOkruh.Common.DataProcessing
 {

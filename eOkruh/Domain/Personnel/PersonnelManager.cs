@@ -2,7 +2,6 @@
 using eOkruh.Common.DataProcessing;
 using eOkruh.Domain.MilitaryStructures;
 using System.Collections.ObjectModel;
-using System.Dynamic;
 
 namespace eOkruh.Domain.Personnel
 {
